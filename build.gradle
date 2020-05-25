@@ -1,0 +1,42 @@
+group 'fr.il_totore'
+version '1.0-SNAPSHOT'
+
+
+ext {
+    scalaVersion = '2.13.1'
+}
+
+allprojects {
+
+    apply plugin: 'scala'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        compile scalaLib()
+        compile scalaDependency('com.typesafe.akka', 'akka-http', '10.2.0-M1')
+        compile scalaDependency('com.typesafe.akka', 'akka-stream', '2.6.5')
+    }
+
+    compileScala.options.encoding = compileJava.options.encoding = compileTestScala.options.encoding = compileTestJava.options.encoding = 'UTF-8'
+}
+
+def getMajorScalaVersion() {
+    String[] parts = scalaVersion.tokenize('.')
+    return parts[0] + '.' + parts[1]
+}
+
+def scalaModule(String name, String version) {
+    return scalaDependency('org.scala-lang.modules', name, version)
+}
+
+def scalaDependency(String company, String name, String version) {
+    return company + ':' + name + '_' + getMajorScalaVersion() + ':' + version
+}
+
+def scalaLib() {
+    return 'org.scala-lang:scala-library:' + scalaVersion
+}
