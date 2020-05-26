@@ -1,9 +1,5 @@
 package fr.linkheroes.enderchest.client
 
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Directives.{extractRequest, path}
-;
-
 object Main {
 
   def main(args: Array[String]): Unit = {
