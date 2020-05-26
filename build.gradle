@@ -19,7 +19,8 @@ allprojects {
         compile scalaLib()
         compile scalaDependency('com.typesafe.akka', 'akka-http', '10.2.0-M1')
         compile scalaDependency('com.typesafe.akka', 'akka-stream', '2.6.5')
-        compile 'net.openhft:zero-allocation-hashing:0.11'
+        compile scalaDependency('com.desmondyeung.hashing', 'scala-hashing', '0.1.0')
+        compile 'commons-io:commons-io:2.6'
     }
 
     compileScala.options.encoding = compileJava.options.encoding = compileTestScala.options.encoding = compileTestJava.options.encoding = 'UTF-8'

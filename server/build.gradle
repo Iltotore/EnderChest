@@ -1,0 +1,26 @@
+repositories {
+    maven {url 'https://jitpack.io'}
+}
+
+dependencies {
+    compile project(':core')
+    compile scalaDependency('org.rogach', 'scallop', '3.4.0')
+    compile 'com.github.Carleslc:Simple-YAML:1.4.1'
+}
+
+def getMajorScalaVersion() {
+    String[] parts = scalaVersion.tokenize('.')
+    return parts[0] + '.' + parts[1]
+}
+
+def scalaModule(String name, String version) {
+    return scalaDependency('org.scala-lang.modules', name, version)
+}
+
+def scalaDependency(String company, String name, String version) {
+    return company + ':' + name + '_' + getMajorScalaVersion() + ':' + version
+}
+
+def scalaLib() {
+    return 'org.scala-lang:scala-library:' + scalaVersion
+}

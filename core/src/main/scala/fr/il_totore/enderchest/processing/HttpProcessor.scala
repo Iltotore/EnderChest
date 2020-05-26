@@ -1,4 +1,4 @@
-package fr.il_totore.enderchest.server.handler
+package fr.il_totore.enderchest.processing
 
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.StandardRoute

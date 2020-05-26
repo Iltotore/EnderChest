@@ -1,4 +1,4 @@
-package fr.il_totore.enderchest.server.info
+package fr.il_totore.enderchest.messaging
 
 import java.io.{DataInputStream, DataOutputStream}
 
