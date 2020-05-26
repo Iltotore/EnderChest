@@ -12,25 +12,13 @@ object Main {
   def main(args: Array[String]): Unit = {
     println("[Enderchest] -> Ready to use !")
 
-    connect("http://medievalia.jdteam.fr", 8080)
+    connect("http://localhost:8080")
 
   }
 
-  def connect (host: String, port: Int): Unit = {
-    println("[EnderChest] Connect to " + host + ":" + port)
+  def connect (host: String): Unit = {
+    println("[EnderChest] Connect to " + host)
 
-    implicit val system = ActorSystem()
-    implicit val materializer = ActorMaterializer()
-    // needed for the future flatMap/onComplete in the end
-    implicit val executionContext = system.dispatcher
-
-    val responseFuture: Future[HttpResponse] = Http().singleRequest(HttpRequest(uri = host))
-
-    responseFuture
-      .onComplete {
-        case Success(res) => println(res)
-        case Failure(_)   => sys.error("something wrong")
-      }
 
   }
 }
