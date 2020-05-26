@@ -1,8 +1,8 @@
-package fr.il_totore.enderchest.server.handler
+package fr.il_totore.enderchest.processing
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
 
-import fr.il_totore.enderchest.server.info.{ByteMessage, InMessage, OutMessage}
+import fr.il_totore.enderchest.messaging.{ByteMessage, InMessage, OutMessage}
 
 abstract class HttpMessageProcessor(implicit registry: List[(Byte, DataInputStream) => InMessage]) extends HttpByteStreamProcessor {
   override def processStream(input: ByteArrayInputStream): ByteArrayOutputStream = {

@@ -1,11 +1,11 @@
-package fr.il_totore.enderchest.server.handler
+package fr.il_totore.enderchest.processing
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.concurrent.TimeUnit
 
-import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest, HttpResponse}
 import akka.http.scaladsl.server.StandardRoute
-import akka.http.scaladsl.server.directives.RouteDirectives._
+import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.ByteString

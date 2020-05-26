@@ -1,13 +1,14 @@
 package fr.il_totore.enderchest.server
 
-import java.io.DataInputStream
+import java.io.{DataInputStream, File}
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorMaterializer, Materializer}
-import fr.il_totore.enderchest.server.handler.UpdateProcessor
-import fr.il_totore.enderchest.server.info.{InMessage, UpdateInMessage}
+import fr.il_totore.enderchest.messaging.InMessage
+import fr.il_totore.enderchest.server.messaging.UpdateInMessage
+import fr.il_totore.enderchest.server.processing.UpdateProcessor
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
@@ -23,6 +24,11 @@ object Main {
       (id, stream) => new UpdateInMessage(id, stream)
     )
 
+    val directory = new File(System.getProperty("user.dir"))
+
+    val app: Application = new Application(args, new File(directory, "config.yml"))
+    app.start()
+
     val handler = new UpdateProcessor
 
     val route =
@@ -34,8 +40,6 @@ object Main {
 
     println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
     StdIn.readLine() // let it run until user presses return
-    bindingFuture
-      .flatMap(_.unbind()) // trigger unbinding from the port
-      .onComplete(_ => system.terminate()) // and shutdown when done
+
   }
 }

@@ -1,0 +1,9 @@
+network:
+  ip: localhost
+  port: 8080
+  paths:
+    update: "update"
+file:
+  directory: "files" # Updatable files directory path
+  hash-method: "xx-32" # Available: xx-32, xx-64, murmur-32
+  exclude: "a^" # Ignore all files matched by this regex
