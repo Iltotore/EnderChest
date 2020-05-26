@@ -9,19 +9,13 @@ import scala.collection.mutable.ListBuffer
 
 class UpdateInMessage() extends InMessage(1) {
 
-  private val hashes: mutable.ListBuffer[Array[Byte]] = ListBuffer()
+  private val hashes: mutable.ListBuffer[Int] = ListBuffer()
 
-  def this(id: Byte, stream: DataInputStream) {
+  def this(stream: DataInputStream) {
     this()
     val hashCount = stream.readUnsignedShort()
-    for (_ <- 0 to hashCount) {
-      var hashLength = stream.readUnsignedByte()
-      hashLength = stream.readUnsignedByte()
-      val hash = new Array[Byte](hashLength)
-      stream.readFully(hash)
-      hashes.addOne(hash)
-    }
+    for (_ <- 0 to hashCount) hashes.addOne(stream.readInt())
   }
 
-  def getHashes: mutable.ListBuffer[Array[Byte]] = hashes
+  def getHashes: mutable.ListBuffer[Int] = hashes
 }

@@ -10,7 +10,7 @@ import fr.il_totore.enderchest.messaging.InMessage
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
-class Application(args: Array[String], configFile: File)(implicit system: ActorSystem, materializer: Materializer, contextExecutor: ExecutionContextExecutor, inRegistry: List[(Byte, DataInputStream) => InMessage]) {
+class Server(args: Array[String], configFile: File)(implicit system: ActorSystem, materializer: Materializer, contextExecutor: ExecutionContextExecutor, inRegistry: List[(Byte, DataInputStream) => InMessage]) {
 
   var bindingFuture: Future[ServerBinding] = _
 

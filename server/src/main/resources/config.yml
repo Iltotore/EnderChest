@@ -7,3 +7,5 @@ file:
   directory: "files" # Updatable files directory path
   hash-method: "xx-32" # Available: xx-32, xx-64, murmur-32
   exclude: "a^" # Ignore all files matched by this regex
+  max-size-allowed: 4 # Max byte count to store the file length. The max file size in bytes correspond to 2^(n*8). Default: 4 (~4.30MB)
+  # Note: a lower value should increase the download speed.

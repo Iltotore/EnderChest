@@ -1,4 +1,4 @@
-package fr.il_totore.enderchest.processing
+package fr.il_totore.enderchest.server.processing
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.concurrent.TimeUnit
