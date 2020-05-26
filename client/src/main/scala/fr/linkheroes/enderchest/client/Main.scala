@@ -11,6 +11,13 @@ object Main {
   }
 
   def connect (string: String, int: Int): Unit = {
+    val handler = new UpdateProcessor
 
+    val route =
+      path("update") {
+        extractRequest(handler.process)
+      }
+
+    val connect = Http().bindAndHandle(route, String, Int)
   }
 }
