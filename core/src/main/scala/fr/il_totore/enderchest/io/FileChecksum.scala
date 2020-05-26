@@ -1,3 +1,5 @@
 package fr.il_totore.enderchest.io
 
-case class FileChecksum(path: String, hash: Int)
+import java.io.File
+
+case class FileChecksum(directory: File, file: File, hash: Int)

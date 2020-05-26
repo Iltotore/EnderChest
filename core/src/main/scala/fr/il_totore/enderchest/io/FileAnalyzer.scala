@@ -22,7 +22,7 @@ class FileAnalyzer(directory: File, exclude: String => Boolean, recursive: Boole
     for (file <- directory.listFiles() if !exclude.apply(file.getName)) {
       if (file.isDirectory) checkDirectory(file) else {
         val hash: Int = XxHash32.hashByteArray(IOUtils.toByteArray(new FileInputStream(file)), 0)
-        checksum.addOne(FileChecksum(file.getAbsolutePath, hash))
+        checksum.addOne(FileChecksum(this.directory, file, hash))
       }
     }
   }
