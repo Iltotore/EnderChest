@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':core')
+    compile scalaDependency('org.rogach', 'scallop', '3.4.0')
+}
