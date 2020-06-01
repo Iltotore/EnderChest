@@ -1,3 +1,7 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+}
+
 repositories {
     maven {url 'https://jitpack.io'}
 }
@@ -6,6 +10,10 @@ dependencies {
     compile project(':core')
     compile scalaDependency('org.rogach', 'scallop', '3.4.0')
     compile 'com.github.Carleslc:Simple-YAML:1.4.1'
+}
+
+shadowJar {
+    configurations = [project.configurations.compile]
 }
 
 def getMajorScalaVersion() {
