@@ -1,2 +1,5 @@
-# EnderChest Discord Resources [![Build Status](https://travis-ci.org/beautiful-discord-community/resources.svg?branch=master)](https://travis-ci.org/dtinker/discord-resources) [![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/EDwd5wr)
-An mod-update system.
+# EnderChest Discord Resources [![Build Status](https://github.com/Iltotore/EnderChest?branch=master)]
+
+# Discord
+
+[![Join ESX Brasil](https://discordapp.com/api/guilds/718109282406498415/embed.png?style=banner2)](https://discord.gg/zX3A8Nb)
