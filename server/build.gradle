@@ -1,14 +1,3 @@
-import proguard.gradle.ProGuardTask
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'net.sf.proguard:proguard-gradle:6.2.2'
-    }
-}
-
 plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
@@ -36,36 +25,6 @@ shadowJar {
     append 'reference.conf'
 }
 
-task optimize(type: ProGuardTask) {
-    injars "${buildDir}/libs/${archivesBaseName}.jar"
-    injars configurations.compile.collect()
-    outjars("${buildDir}/libs/${archivesBaseName}-${rootProject.version}-shrunk.jar")
-    ConfigurableFileCollection javaFiles = getJavaLibs()
-    if(!javaFiles.filter { file -> !file.exists() }.empty) throw new IllegalStateException("Missing libs found")
-    libraryjars javaFiles
-    dontobfuscate()
-    dontwarn()
-    //dontskipnonpubliclibraryclassmembers()
-    dontoptimize()
-    keep "class fr.il_totore.enderchest.** {*;}"
-    keep "public class akka.actor.LocalActorRefProvider {public <init>(...);}"
-    keep "public class akka.remote.RemoteActorRefProvider {public <init>(...);}"
-    keep "class akka.actor.SerializedActorRef {*;}"
-    keep "class akka.serialization.JavaSerializer {*;}"
-    keep "class akka.serialization.ProtobufSerializer {*;}"
-    keep "class com.google.protobuf.GeneratedMessage {*;}"
-    keep "class akka.event.Logging*"
-    keep "class akka.event.DefaultLoggingFilter {*;}"
-    keep "class akka.actor.LightArrayRevolverScheduler {*;}"
-    keep "class akka.routing.* {*;}"
-    keep "class akka.dispatch.* {*;}"
-    keep "class akka.event.* {*;}"
-    keep "class akka.actor.* {*;}"
-    keep "class akka.serialization.* {*;}"
-    keep "class scala.* {*;}"
-
-    dependsOn jar
-}
 
 task generateLibs(type: Copy){
     from configurations.compile.collect()
