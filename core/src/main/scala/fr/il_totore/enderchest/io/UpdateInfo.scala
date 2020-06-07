@@ -1,6 +1,6 @@
 package fr.il_totore.enderchest.io
 
-import java.io.ByteArrayOutputStream
+import java.io.{ByteArrayOutputStream, DataOutputStream}
 import java.util.Base64
 import java.util.zip.GZIPOutputStream
 
@@ -8,7 +8,13 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsObject, JsString, JsValue, RootJsonFormat}
 
 
-case class UpdateInfo(path: String, data: Array[Byte])
+case class UpdateInfo(path: String, data: Array[Byte]) {
+
+  def serialize(stream: DataOutputStream): Unit = {
+    stream.writeUTF(path)
+    stream
+  }
+}
 
 object UpdateInfo {
 

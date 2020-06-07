@@ -1,17 +1,25 @@
 package fr.il_totore.enderchest.io
 
-import java.io.{File, FileInputStream}
+import java.io.{DataOutputStream, File}
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import org.apache.commons.io.IOUtils
+import fr.il_totore.enderchest.io.EndLogger._
+import org.apache.commons.io.FileUtils
 import spray.json.{DeserializationException, JsNumber, JsObject, JsString, JsValue, RootJsonFormat}
 
 
 case class FileChecksum(relativePath: String, hash: Int) {
 
+  def serialize(directory: File, stream: DataOutputStream): Unit = {
+    stream.writeUTF(relativePath)
+    val bytes = FileUtils.readFileToByteArray(new File(directory, relativePath))
+    stream.writeInt(bytes.length)
+    stream.write(bytes)
+  }
+
   def toUpdateInfo(directory: File): UpdateInfo = {
-    val bytes = IOUtils.toByteArray(new FileInputStream(new File(directory, relativePath)))
-    println("bytes " + bytes.length)
+    info("Processing " + relativePath)
+    val bytes = FileUtils.readFileToByteArray(new File(directory, relativePath))
     UpdateInfo(relativePath, bytes)
   }
 }

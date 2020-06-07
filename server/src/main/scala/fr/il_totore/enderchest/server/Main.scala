@@ -1,22 +1,20 @@
 package fr.il_totore.enderchest.server
 
 import java.io.File
-import java.util.concurrent.TimeUnit
+import java.util.logging.Level
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.common.{EntityStreamingSupport, JsonEntityStreamingSupport}
 import akka.stream.{ActorMaterializer, Materializer}
-import spray.json._
+import fr.il_totore.enderchest.io.EndLogger._
 
 import scala.concurrent.ExecutionContextExecutor
-import scala.concurrent.duration.FiniteDuration
-import scala.io.StdIn
+import scala.util.{Failure, Success}
 
 object Main {
 
   def main(args: Array[String]): Unit = {
-    implicit val system: ActorSystem = ActorSystem("my-system")
+    implicit val system: ActorSystem = ActorSystem("enderchest")
     implicit val materializer: Materializer = ActorMaterializer()
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
     implicit val jsonStreamingSupport: JsonEntityStreamingSupport = EntityStreamingSupport.json()
@@ -25,15 +23,21 @@ object Main {
     val directory = new File(System.getProperty("user.dir"))
 
     val app: Server = new Server(args, new File(directory, "config.yml"))
+    info("Starting server...")
     app.start()
-    app.analyzer.check
+    info("Indexing files...")
+    val time = System.currentTimeMillis()
+    app.analyzer.check.onComplete {
 
-    Http().bindAndHandleAsync(request => {
-      request.entity.toStrict(FiniteDuration(1, TimeUnit.MINUTES)).map(strict => app.receiveUpdatePart(strict.data.utf8String.parseJson.asInstanceOf[JsArray]))
-    }, "localhost", 8080)
+      case Success(count) => fine(s"Successfully indexed $count files in ${System.currentTimeMillis() - time}ms")
 
-    println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
-    StdIn.readLine() // let it run until user presses return
+      case Failure(exception) => log(Level.WARNING, "Unable to process files.", exception)
+    }
 
+    val cmdHandler = new CommandHandler
+    val cmdThread = new CommandThread(cmdHandler)
+    cmdHandler.register("help", DefaultCommands.help)
+    cmdHandler.register("stop", DefaultCommands.stop(system))
+    cmdThread.start()
   }
 }

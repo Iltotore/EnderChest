@@ -1,4 +1,12 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+}
+
 dependencies {
-    compile project(':core')
-    compile scalaDependency('org.rogach', 'scallop', '3.4.0')
+    implementation project(':core')
+    implementation scalaDependency('org.rogach', 'scallop', '3.4.0')
+}
+
+shadowJar {
+    configurations = [project.configurations.compile]
 }

@@ -1,19 +1,75 @@
+import proguard.gradle.ProGuardTask
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'net.sf.proguard:proguard-gradle:6.2.2'
+    }
+}
+
 plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 repositories {
-    maven {url 'https://jitpack.io'}
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    compile project(':core')
-    compile scalaDependency('org.rogach', 'scallop', '3.4.0')
-    compile 'com.github.Carleslc:Simple-YAML:1.4.1'
+    implementation project(':core')
+    implementation scalaDependency('org.rogach', 'scallop', '3.4.0')
+    implementation 'com.github.Carleslc:Simple-YAML:1.4.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.13.3'
+}
+
+jar {
+    manifest {
+        attributes('Main-Class': 'fr.il_totore.enderchest.server.Main')
+    }
 }
 
 shadowJar {
-    configurations = [project.configurations.compile]
+    project.configurations.implementation.canBeResolved = true
+    configurations = [project.configurations.implementation]
+    append 'reference.conf'
+}
+
+task optimize(type: ProGuardTask) {
+    injars "${buildDir}/libs/${archivesBaseName}.jar"
+    injars configurations.compile.collect()
+    outjars("${buildDir}/libs/${archivesBaseName}-${rootProject.version}-shrunk.jar")
+    ConfigurableFileCollection javaFiles = getJavaLibs()
+    if(!javaFiles.filter { file -> !file.exists() }.empty) throw new IllegalStateException("Missing libs found")
+    libraryjars javaFiles
+    dontobfuscate()
+    dontwarn()
+    //dontskipnonpubliclibraryclassmembers()
+    dontoptimize()
+    keep "class fr.il_totore.enderchest.** {*;}"
+    keep "public class akka.actor.LocalActorRefProvider {public <init>(...);}"
+    keep "public class akka.remote.RemoteActorRefProvider {public <init>(...);}"
+    keep "class akka.actor.SerializedActorRef {*;}"
+    keep "class akka.serialization.JavaSerializer {*;}"
+    keep "class akka.serialization.ProtobufSerializer {*;}"
+    keep "class com.google.protobuf.GeneratedMessage {*;}"
+    keep "class akka.event.Logging*"
+    keep "class akka.event.DefaultLoggingFilter {*;}"
+    keep "class akka.actor.LightArrayRevolverScheduler {*;}"
+    keep "class akka.routing.* {*;}"
+    keep "class akka.dispatch.* {*;}"
+    keep "class akka.event.* {*;}"
+    keep "class akka.actor.* {*;}"
+    keep "class akka.serialization.* {*;}"
+    keep "class scala.* {*;}"
+
+    dependsOn jar
+}
+
+task generateLibs(type: Copy){
+    from configurations.compile.collect()
+    into "${buildDir}/libraries"
 }
 
 def getMajorScalaVersion() {
@@ -31,4 +87,15 @@ def scalaDependency(String company, String name, String version) {
 
 def scalaLib() {
     return 'org.scala-lang:scala-library:' + scalaVersion
+}
+
+def getJavaLibs() {
+    if(JavaVersion.current().isJava9Compatible()) {
+        return files("${System.getProperty("java.home")}/jmods")
+    } else {
+        return files(
+                "${System.getProperty("java.home")}/lib/rt.jar",
+                "${System.getProperty("java.home")}/lib/jce.jar"
+        )
+    }
 }

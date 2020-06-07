@@ -5,6 +5,7 @@ import java.io.File
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.ConfigFactory
+import fr.il_totore.enderchest.io.EndLogger._
 import fr.il_totore.enderchest.io.FileAnalyzer
 
 import scala.concurrent.ExecutionContextExecutor
@@ -31,8 +32,8 @@ object Main {
     val time = System.currentTimeMillis()
     client.checkFiles()
       .flatMap(_ => {
-        println(s"File checking: ${System.currentTimeMillis() - time}ms")
-        client.update()
+        info(s"File checking: ${System.currentTimeMillis() - time}ms")
+        client.update(300)
       })
       .onComplete {
         case Failure(exception) => exception.printStackTrace()
