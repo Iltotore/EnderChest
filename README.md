@@ -1,4 +1,4 @@
-# EnderChest
+# EnderChest [![JOIN ECS](https://discordapp.com/api/guilds/718109282406498415/embed.png?style=shield)](https://discord.gg/zX3A8Nb)
 A fast and concurrent update system
 
 # Introduction
