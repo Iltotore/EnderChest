@@ -1,8 +1,6 @@
 network:
   ip: localhost
   port: 8080
-  paths:
-    update: "update"
 file:
   directory: "./files" # Updatable files directory path
   exclude: "a^" # Ignore all files matched by this regex
