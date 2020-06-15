@@ -23,10 +23,14 @@ class FileAnalyzer(directory: File, exclude: String => Boolean, recursive: Boole
   }
 
   def checkDirectory(root: File, directory: File): Unit = {
-    for (file <- directory.listFiles() if !exclude(file.getName)) {
+    for (file <- directory.listFiles()) {
+
       if (file.isDirectory && recursive) checkDirectory(root, file) else {
-        val hash: Int = XxHash32.hashByteArray(FileUtils.readFileToByteArray(file), 0)
-        checksums.addOne(FileChecksum(file.getAbsolutePath.substring(root.getAbsolutePath.length + 1), hash))
+        val relativePath = file.getAbsolutePath.substring(root.getAbsolutePath.length + 1)
+        if (!exclude(relativePath)) {
+          val hash: Int = XxHash32.hashByteArray(FileUtils.readFileToByteArray(file), 0)
+          checksums += FileChecksum(relativePath, hash)
+        }
       }
     }
   }
