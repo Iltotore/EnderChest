@@ -4,9 +4,7 @@ import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest}
 import akka.http.scaladsl.{Http, HttpExt}
-import akka.stream.scaladsl.Framing
 import akka.stream.{ActorMaterializer, Materializer}
-import akka.util.ByteString
 import fr.il_totore.enderchest.io.FileAnalyzer
 import fr.il_totore.enderchest.io.FileChecksum.Protocol._
 import spray.json._
@@ -19,21 +17,20 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
 
   private implicit val http: HttpExt = Http(actor)
 
-  def checkFiles(): Future[Int] = fileAnalyzer.check
+  def checkFiles: Future[Int] = fileAnalyzer.check
 
-  def update(maxFiles: Int): Future[Done] = {
+  def update: Future[Done] = {
     val array = JsArray((for (checksum <- fileAnalyzer.getChecksums) yield checksum.toJson).toVector)
     val entity = HttpEntity(ContentTypes.`application/json`, array.compactPrint)
     val request = HttpRequest(uri = address, entity = entity)
     http.singleRequest(request)
       .flatMap(response => response.entity match {
         case HttpEntity.Chunked(_, chunks) =>
-          val chunker = Framing.delimiter(ByteString("ENDERCHEST_FILE_SEPARATOR"), maximumFrameLength = maxFiles, allowTruncation = false)
           chunks
             .filterNot(_.isLastChunk)
             .map(_.data())
-            //.via(chunker)
-            .runFold(new ChunkedDownloader(fileAnalyzer.getDirectory))((downloader, data) => downloader.process(data))
+            .runFold(new ChunkedDownloader(fileAnalyzer.getDirectory))((downloader, data) =>
+              downloader.process(data))
             .map(_.close())
 
         case _ => throw new IllegalStateException("Received wrong response: " + response)

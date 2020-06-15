@@ -27,13 +27,13 @@ object Main {
     val file = new File(System.getProperty("user.dir"), "download")
     if (!file.exists()) file.mkdirs()
 
-    val analyzer = new FileAnalyzer(file, _ => false, true)
+    val analyzer = new FileAnalyzer(file, _.startsWith(".MewProject\\shaderpacks\\"), true)
     val client = new EnderClient("http://localhost:8080", analyzer)
     val time = System.currentTimeMillis()
-    client.checkFiles()
+    client.checkFiles
       .flatMap(_ => {
         info(s"File checking: ${System.currentTimeMillis() - time}ms")
-        client.update(300)
+        client.update
       })
       .onComplete {
         case Failure(exception) => exception.printStackTrace()

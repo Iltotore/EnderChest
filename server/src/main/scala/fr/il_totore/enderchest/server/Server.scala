@@ -46,7 +46,7 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
       processChecksum(value.asJsObject).foreach(receivedChecksums.addOne)
     }
 
-    val source = Source(analyzer.getChecksums.toVector)
+    val upload = Source(analyzer.getChecksums.toVector)
       .filterNot(receivedChecksums.contains)
       .flatMapConcat(checksum => FileIO.fromPath(new File(analyzer.getDirectory, checksum.relativePath).toPath)
         .prepend(Source(Vector(
@@ -54,16 +54,21 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
           ByteString(checksum.relativePath)
         ))))
 
+    val toDelete = Source(receivedChecksums.toVector)
+      .filterNot(analyzer.getChecksums.contains)
+      .map(checksum => ByteString(checksum.relativePath))
+      .prepend(Source.single(ByteString("ENDERCHEST_FILE_REMOVE")))
+
 
     info(s"Sending flow...")
-    HttpResponse(entity = HttpEntity(ContentTypes.`application/octet-stream`, source))
+    HttpResponse(entity = HttpEntity(ContentTypes.`application/octet-stream`, toDelete.prepend(upload)))
   }
 
   def stop(): Future[Terminated] = system.terminate()
 
   def processChecksum(json: JsObject): Option[FileChecksum] = {
     json.getFields("path", "hash") match {
-      case Seq(JsString(path), JsNumber(hash)) => Option(new FileChecksum(path, hash.toIntExact))
+      case Seq(JsString(path), JsNumber(hash)) => Option(FileChecksum(path, hash.toIntExact))
 
       case _ => Option.empty
     }
