@@ -1,4 +1,4 @@
-# EnderChest
+# EnderChest ![JOIN ECS](https://discordapp.com/api/guilds/718109282406498415/embed.png?style=shield)
 A fast and concurrent update system
 
 # Introduction
@@ -64,4 +64,4 @@ If you experience a bug/issue using EnderChest, you can create a new github issu
 ## General questions
 Join us on Discord
 
-[![JOIN ECS](https://discordapp.com/api/guilds/718109282406498415/embed.png?style=banner2)](https://discord.gg/zX3A8Nb)
+[![JOIN ECS](https://discordapp.com/api/guilds/718109282406498415/embed.png?style=banner3)](https://discord.gg/zX3A8Nb)
