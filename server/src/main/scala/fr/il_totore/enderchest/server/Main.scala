@@ -37,7 +37,7 @@ object Main {
     val cmdHandler = new CommandHandler
     val cmdThread = new CommandThread(cmdHandler)
     cmdHandler.register("help", DefaultCommands.help)
-    cmdHandler.register("stop", DefaultCommands.stop(system))
+    cmdHandler.register("stop", DefaultCommands.stop(system, cmdThread))
     cmdThread.start()
   }
 }

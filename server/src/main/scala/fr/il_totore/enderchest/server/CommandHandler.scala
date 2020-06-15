@@ -11,7 +11,7 @@ class CommandHandler {
   def register(cmd: String, runnable: Command): Unit = commands.put(cmd, runnable)
 
   def run(cmd: String): Boolean = {
-    commands.get(cmd).foreach(_.executor)
+    commands.get(cmd).foreach(_.executor(this))
     commands.contains(cmd)
   }
 }
