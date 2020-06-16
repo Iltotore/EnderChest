@@ -3,6 +3,9 @@ package fr.il_totore.enderchest.io
 import java.text.SimpleDateFormat
 import java.util.logging.{Formatter, LogRecord}
 
+/**
+ * The EnderChest's log formatter.
+ */
 class LogFormatter extends Formatter {
 
   private val dateFormat = new SimpleDateFormat("hh:mm:ss")

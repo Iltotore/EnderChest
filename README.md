@@ -57,6 +57,9 @@ libraryDependencies += "io.github.iltotore" %% "ec-client" % "version"
 ```
 </details>
 
+
+**You can now use EnderChest's client! See the wiki page for more informations**
+
 # Support
 ## Issues
 If you experience a bug/issue using EnderChest, you can create a new github issue.

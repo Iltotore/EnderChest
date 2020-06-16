@@ -4,6 +4,9 @@ import java.util.ResourceBundle
 import java.util.function.Supplier
 import java.util.logging._
 
+/**
+ * The EnderChest's logger.
+ */
 object EndLogger {
 
   private val stream = EndLogger.getClass.getResourceAsStream("/logging.properties")

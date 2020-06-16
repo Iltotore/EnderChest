@@ -6,11 +6,22 @@ import akka.Done
 import akka.util.ByteString
 import fr.il_totore.enderchest.io.EndLogger._
 
+/**
+ * An object used to flush and download received bytes.
+ *
+ * @param root the directory to download in.
+ */
 class ChunkedDownloader(root: File) {
 
   var deleting = false
   var stream: OutputStream = _
 
+  /**
+   * Process the given chunked ByteString.
+   *
+   * @param byteString the ByteString to process.
+   * @return this ChunkedDownloader for chaining.
+   */
   def process(byteString: ByteString): ChunkedDownloader = {
     if (deleting) {
       info("Deleting " + byteString.utf8String)
@@ -35,6 +46,11 @@ class ChunkedDownloader(root: File) {
     this
   }
 
+  /**
+   * Close the last stream.
+   *
+   * @return Done.
+   */
   def close(): Done = {
     if (stream != null) stream.close()
     Done

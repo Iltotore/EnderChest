@@ -1,5 +1,14 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'maven-publish'
+    id 'signing'
+}
+
+Properties localProperties = new Properties()
+localProperties.load(rootProject.file('local.properties').newDataInputStream())
+
+for(Map.Entry<String, ?> entry : localProperties.entrySet()){
+    project.ext[entry.getKey()] = entry.getValue()
 }
 
 dependencies {
@@ -8,5 +17,86 @@ dependencies {
 }
 
 shadowJar {
-    configurations = [project.configurations.compile]
+    project.configurations.implementation.canBeResolved = true
+    configurations = [project.configurations.implementation]
+    archiveClassifier = 'withDependencies'
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+task scaladocJar(type: Jar){
+    archiveClassifier = 'scaladoc'
+    from new File(buildDir, 'docs/scaladoc')
+    group 'build'
+    dependsOn scaladoc
+}
+
+def documented = [':client', ':core']
+
+scaladoc {
+    source documented.collect { project(it).sourceSets.main.allScala }
+    project.configurations.implementation.canBeResolved = true
+    scalaClasspath+=project.configurations.implementation
+}
+
+javadocJar.dependsOn(scaladocJar)
+
+
+publishing {
+    publications {
+        mavenScala(MavenPublication) {
+            artifactId = 'ec-client_' + getMajorScalaVersion()
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('implementation')
+                }
+            }
+
+            repositories {
+                maven {
+                    url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+                    credentials {
+                        username = "Il_totore"
+                        password = System.getenv("SONATYPE_PASSWORD")
+                    }
+                }
+            }
+
+            pom {
+                name = 'UniversalCommandParser'
+                description = 'A flexible command system written in Scala.'
+                url = 'https://github.com/Iltotore/UCP'
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'iltotore'
+                        name = 'Il_totore'
+                        email = 'rafbodaha@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/Iltotore/UCP.git'
+                    developerConnection = 'scm:git:ssh://github.com/Iltotore/UCP.git'
+                    url = 'https://github.com/Iltotore/UCP.git'
+                }
+            }
+
+            from components.java
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign publishing.publications.mavenScala
 }

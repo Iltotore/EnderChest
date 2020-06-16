@@ -1,7 +1,3 @@
-plugins {
-    id 'ca.cutterslade.analyze' version '1.4.1'
-}
-
 group 'fr.il_totore'
 version '0.1'
 
@@ -12,7 +8,6 @@ ext {
 
 allprojects {
     apply plugin: 'scala'
-    apply plugin: 'ca.cutterslade.analyze'
 
     repositories {
         mavenCentral()
