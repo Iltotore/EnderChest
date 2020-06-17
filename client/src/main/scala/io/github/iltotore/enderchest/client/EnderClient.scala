@@ -1,12 +1,11 @@
-package fr.il_totore.enderchest.client
+package io.github.iltotore.enderchest.client
 
 import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.{ActorMaterializer, Materializer}
-import fr.il_totore.enderchest.io.FileAnalyzer
-import fr.il_totore.enderchest.io.FileChecksum.Protocol._
+import io.github.iltotore.enderchest.FileAnalyzer
 import spray.json._
 
 import scala.concurrent.{ExecutionContextExecutor, Future}

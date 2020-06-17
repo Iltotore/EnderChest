@@ -1,4 +1,4 @@
-package fr.il_totore.enderchest.io
+package io.github.iltotore.enderchest
 
 import java.io.File
 

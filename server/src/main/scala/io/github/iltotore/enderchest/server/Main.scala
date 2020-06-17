@@ -1,4 +1,4 @@
-package fr.il_totore.enderchest.server
+package io.github.iltotore.enderchest.server
 
 import java.io.File
 import java.util.logging.Level
@@ -6,7 +6,6 @@ import java.util.logging.Level
 import akka.actor.ActorSystem
 import akka.http.scaladsl.common.{EntityStreamingSupport, JsonEntityStreamingSupport}
 import akka.stream.{ActorMaterializer, Materializer}
-import fr.il_totore.enderchest.io.EndLogger._
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.util.{Failure, Success}

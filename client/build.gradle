@@ -4,6 +4,8 @@ plugins {
     id 'signing'
 }
 
+version = 1.0
+
 Properties localProperties = new Properties()
 localProperties.load(rootProject.file('local.properties').newDataInputStream())
 
@@ -19,6 +21,7 @@ dependencies {
 shadowJar {
     project.configurations.implementation.canBeResolved = true
     configurations = [project.configurations.implementation]
+    append('reference.conf')
     archiveClassifier = 'withDependencies'
 }
 

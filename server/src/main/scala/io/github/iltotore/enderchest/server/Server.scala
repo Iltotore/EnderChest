@@ -1,4 +1,4 @@
-package fr.il_totore.enderchest.server
+package io.github.iltotore.enderchest.server
 
 import java.io.File
 import java.nio.file.Files
@@ -11,8 +11,7 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
-import fr.il_totore.enderchest.io.EndLogger._
-import fr.il_totore.enderchest.io.{FileAnalyzer, FileChecksum}
+import io.github.iltotore.enderchest.{FileAnalyzer, FileChecksum}
 import org.simpleyaml.configuration.file.YamlConfiguration
 import spray.json.{JsNumber, JsObject, JsString, _}
 

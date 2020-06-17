@@ -1,4 +1,4 @@
-package fr.il_totore.enderchest.server
+package io.github.iltotore.enderchest.server
 
 import scala.io.StdIn
 

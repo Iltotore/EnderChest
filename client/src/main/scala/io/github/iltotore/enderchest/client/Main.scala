@@ -1,12 +1,11 @@
-package fr.il_totore.enderchest.client
+package io.github.iltotore.enderchest.client
 
 import java.io.File
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.ConfigFactory
-import fr.il_totore.enderchest.io.EndLogger._
-import fr.il_totore.enderchest.io.FileAnalyzer
+import io.github.iltotore.enderchest.FileAnalyzer
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.util.Failure

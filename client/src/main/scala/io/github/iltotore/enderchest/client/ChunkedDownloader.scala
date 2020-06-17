@@ -1,10 +1,9 @@
-package fr.il_totore.enderchest.client
+package io.github.iltotore.enderchest.client
 
 import java.io.{File, FileOutputStream, OutputStream}
 
 import akka.Done
 import akka.util.ByteString
-import fr.il_totore.enderchest.io.EndLogger._
 
 /**
  * An object used to flush and download received bytes.

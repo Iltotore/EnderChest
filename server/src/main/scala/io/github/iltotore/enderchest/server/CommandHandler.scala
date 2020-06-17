@@ -1,6 +1,6 @@
-package fr.il_totore.enderchest.server
+package io.github.iltotore.enderchest.server
 
-import fr.il_totore.enderchest.server.CommandHandler.Command
+import io.github.iltotore.enderchest.server.CommandHandler.Command
 
 import scala.collection.mutable
 
