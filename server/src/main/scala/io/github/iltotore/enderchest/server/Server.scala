@@ -11,6 +11,7 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
+import io.github.iltotore.enderchest.EndLogger._
 import io.github.iltotore.enderchest.{FileAnalyzer, FileChecksum}
 import org.simpleyaml.configuration.file.YamlConfiguration
 import spray.json.{JsNumber, JsObject, JsString, _}

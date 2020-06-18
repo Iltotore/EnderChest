@@ -1,6 +1,7 @@
 package io.github.iltotore.enderchest.server
 
 import akka.actor.ActorSystem
+import io.github.iltotore.enderchest.EndLogger._
 import io.github.iltotore.enderchest.server.CommandHandler.Command
 
 object DefaultCommands {

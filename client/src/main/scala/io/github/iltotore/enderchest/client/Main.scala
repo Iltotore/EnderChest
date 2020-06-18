@@ -30,10 +30,7 @@ object Main {
     val client = new EnderClient("http://localhost:8080", analyzer)
     val time = System.currentTimeMillis()
     client.checkFiles
-      .flatMap(_ => {
-        info(s"File checking: ${System.currentTimeMillis() - time}ms")
-        client.update
-      })
+      .flatMap(_ => client.update)
       .onComplete {
         case Failure(exception) => exception.printStackTrace()
 

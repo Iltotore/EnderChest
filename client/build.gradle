@@ -4,7 +4,7 @@ plugins {
     id 'signing'
 }
 
-version = 1.0
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 Properties localProperties = new Properties()
 localProperties.load(rootProject.file('local.properties').newDataInputStream())
@@ -13,21 +13,42 @@ for(Map.Entry<String, ?> entry : localProperties.entrySet()){
     project.ext[entry.getKey()] = entry.getValue()
 }
 
+
 dependencies {
     implementation project(':core')
     implementation scalaDependency('org.rogach', 'scallop', '3.4.0')
 }
 
+def included = [':client', ':core']
+
+
 shadowJar {
     project.configurations.implementation.canBeResolved = true
     configurations = [project.configurations.implementation]
     append('reference.conf')
-    archiveClassifier = 'withDependencies'
+    archiveClassifier = 'withDependencies-java'
+}
+
+task scalaJar(type: ShadowJar){
+    project.configurations.implementation.canBeResolved = true
+    configurations = [project.configurations.implementation]
+    dependencies {exclude(dependency(scalaLib()))}
+    append('reference.conf')
+    archiveClassifier = 'withDependencies-scala'
+}
+
+
+jar {
+    from zipTree(project(':core').file("build/libs/core-${rootProject.version}.jar"))
 }
 
 java {
     withSourcesJar()
     withJavadocJar()
+}
+
+sourcesJar {
+    from included.collect { project(it).sourceSets.main.allScala }
 }
 
 task scaladocJar(type: Jar){
@@ -37,16 +58,24 @@ task scaladocJar(type: Jar){
     dependsOn scaladoc
 }
 
-def documented = [':client', ':core']
-
 scaladoc {
-    source documented.collect { project(it).sourceSets.main.allScala }
+    source included.collect { project(it).sourceSets.main.allScala }
     project.configurations.implementation.canBeResolved = true
     scalaClasspath+=project.configurations.implementation
 }
 
+task clearBuild {
+    buildDir.deleteDir()
+}
+
+afterEvaluate {
+    generateMetadataFileForMavenScalaPublication.dependsOn(clean)
+}
+
 javadocJar.dependsOn(scaladocJar)
 
+def scaladocFile = file("$buildDir/libs/client-$version-scaladoc.jar")
+def scaladocArtifact = artifacts.add('archives', scaladocFile)
 
 publishing {
     publications {
@@ -70,9 +99,9 @@ publishing {
             }
 
             pom {
-                name = 'UniversalCommandParser'
-                description = 'A flexible command system written in Scala.'
-                url = 'https://github.com/Iltotore/UCP'
+                name = 'EnderChest Client'
+                description = 'The EnderChest\'s client library'
+                url = 'https://github.com/Iltotore/EnderChest'
 
                 licenses {
                     license {
@@ -88,13 +117,22 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com/Iltotore/UCP.git'
-                    developerConnection = 'scm:git:ssh://github.com/Iltotore/UCP.git'
-                    url = 'https://github.com/Iltotore/UCP.git'
+                    connection = 'scm:git:git://github.com/Iltotore/EnderChest.git'
+                    developerConnection = 'scm:git:ssh://github.com/Iltotore/EnderChest.git'
+                    url = 'https://github.com/Iltotore/EnderChest.git'
+                }
+
+                withXml {
+                    asNode().dependencies.dependency.each { dep ->
+                        if(dep.artifactId.last().value().last() in ['core']) {
+                            assert dep.parent().remove(dep)
+                        }
+                    }
                 }
             }
 
             from components.java
+            artifact scaladocArtifact
         }
     }
 }
@@ -102,4 +140,8 @@ publishing {
 signing {
     useGpgCmd()
     sign publishing.publications.mavenScala
+}
+
+def scalaLib() {
+    return 'org.scala-lang:scala-library:' + scalaVersion
 }

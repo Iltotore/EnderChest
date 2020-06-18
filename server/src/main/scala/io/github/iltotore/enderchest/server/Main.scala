@@ -6,6 +6,7 @@ import java.util.logging.Level
 import akka.actor.ActorSystem
 import akka.http.scaladsl.common.{EntityStreamingSupport, JsonEntityStreamingSupport}
 import akka.stream.{ActorMaterializer, Materializer}
+import io.github.iltotore.enderchest.EndLogger._
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.util.{Failure, Success}

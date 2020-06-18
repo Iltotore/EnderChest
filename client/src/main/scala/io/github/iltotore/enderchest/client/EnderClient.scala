@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.{ActorMaterializer, Materializer}
 import io.github.iltotore.enderchest.FileAnalyzer
+import io.github.iltotore.enderchest.FileChecksum.Protocol._
 import spray.json._
 
 import scala.concurrent.{ExecutionContextExecutor, Future}

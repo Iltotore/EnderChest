@@ -1,13 +1,11 @@
-group 'io.github.iltotore'
-version '0.1'
-
-
-ext {
-    scalaVersion = '2.13.1'
-}
-
 allprojects {
+    ext {
+        scalaVersion = '2.13.1'
+    }
     apply plugin: 'scala'
+
+    group 'io.github.iltotore'
+    version '1.0'
 
     repositories {
         mavenCentral()

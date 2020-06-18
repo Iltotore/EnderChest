@@ -4,6 +4,7 @@ import java.io.{File, FileOutputStream, OutputStream}
 
 import akka.Done
 import akka.util.ByteString
+import io.github.iltotore.enderchest.EndLogger._
 
 /**
  * An object used to flush and download received bytes.
