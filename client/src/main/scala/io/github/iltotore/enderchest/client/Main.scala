@@ -1,6 +1,6 @@
 package io.github.iltotore.enderchest.client
 
-import java.io.File
+import java.nio.file.{Files, Paths}
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
@@ -23,10 +23,10 @@ object Main {
     implicit val materializer: Materializer = ActorMaterializer()
     // needed for the future flatMap/onComplete in the end
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
-    val file = new File(System.getProperty("user.dir"), "download")
-    if (!file.exists()) file.mkdirs()
+    val path = Paths.get(System.getProperty("user.dir"), "download")
+    if (!Files.exists(path)) Files.createFile(path)
 
-    val analyzer = new FileAnalyzer(file, _.startsWith(".MewProject\\shaderpacks\\"), true)
+    val analyzer = new FileAnalyzer(path, exclude = _.startsWith(".MewProject\\shaderpacks\\"))
     val client = new EnderClient("http://localhost:8080", analyzer)
     val time = System.currentTimeMillis()
     client.checkFiles

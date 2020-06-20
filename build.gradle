@@ -14,6 +14,7 @@ allprojects {
 
     dependencies {
         implementation scalaLib()
+        implementation scalaDependency('com.lightbend.akka', 'akka-stream-alpakka-file', '2.0.1')
         implementation scalaDependency('com.typesafe.akka', 'akka-http', '10.2.0-M1')
         implementation scalaDependency('com.typesafe.akka', 'akka-stream', '2.6.5')
         implementation scalaDependency('com.typesafe.akka', 'akka-http-spray-json', '10.2.0-M1')

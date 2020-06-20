@@ -1,7 +1,7 @@
 package io.github.iltotore.enderchest.server
 
 import java.io.File
-import java.nio.file.Files
+import java.nio.file.{Files, Paths}
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
@@ -30,11 +30,9 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
     if (!configFile.exists()) Files.copy(getClass.getResourceAsStream("/config.yml"), configFile.toPath)
     val config = YamlConfiguration.loadConfiguration(configFile)
     dataChunkSize = config.getInt("file.chunk-size", 8192)
-    val dir = new File(config.getString("file.directory"))
-    if (!dir.exists()) dir.mkdirs()
     val pattern = Pattern.compile(config.getString("file.exclude")).asPredicate()
     val exclude = pattern.test _
-    analyzer = new FileAnalyzer(dir, exclude, config.getBoolean("file.recursive"))
+    analyzer = new FileAnalyzer(Paths.get(System.getProperty("user.dir"), config.getString("file.directory")), exclude = exclude, maxDepth = Option(config.getInt("file.max-depth")).filter(_ >= 0))
 
     http.bindAndHandleAsync(request => {
       request.entity.toStrict(FiniteDuration(1, TimeUnit.MINUTES)).map(strict => receiveUpdatePart(strict.data.utf8String.parseJson.asInstanceOf[JsArray]))
@@ -49,16 +47,16 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
     }
 
     val upload = Source(analyzer.getChecksums.toVector)
-      .filterNot(receivedChecksums.contains)
-      .flatMapConcat(checksum => FileIO.fromPath(new File(analyzer.getDirectory, checksum.relativePath).toPath, chunkSize = dataChunkSize)
+      .filterNot(checksum => receivedChecksums.exists(checksum.equals))
+      .flatMapConcat(checksum => FileIO.fromPath(analyzer.getDirectory.resolve(checksum.relativePath), chunkSize = dataChunkSize)
         .prepend(Source(Vector(
           ByteString("ENDERCHEST_FILE_SEPARATOR"),
-          ByteString(checksum.relativePath)
+          ByteString(checksum.relativePath.toString)
         ))))
 
     val toDelete = Source(receivedChecksums.toVector)
       .filterNot(checksum => analyzer.getChecksums.exists(_.relativePath.equals(checksum.relativePath)))
-      .map(checksum => ByteString(checksum.relativePath))
+      .map(checksum => ByteString(checksum.relativePath.toString))
       .prepend(Source.single(ByteString("ENDERCHEST_FILE_REMOVE")))
 
 
@@ -70,7 +68,7 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
 
   def processChecksum(json: JsObject): Option[FileChecksum] = {
     json.getFields("path", "hash") match {
-      case Seq(JsString(path), JsNumber(hash)) => Option(FileChecksum(path, hash.toIntExact))
+      case Seq(JsString(path), JsNumber(hash)) => Option(FileChecksum(Paths.get(path), hash.toIntExact))
 
       case _ => Option.empty
     }

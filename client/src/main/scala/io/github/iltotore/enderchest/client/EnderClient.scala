@@ -5,8 +5,8 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.{ActorMaterializer, Materializer}
-import io.github.iltotore.enderchest.FileAnalyzer
-import io.github.iltotore.enderchest.FileChecksum.Protocol._
+import io.github.iltotore.enderchest.FileChecksum.Protocol
+import io.github.iltotore.enderchest.{FileAnalyzer, FileChecksum}
 import spray.json._
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -39,6 +39,7 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
    * @return the Future of this task.
    */
   def update: Future[Done] = {
+    implicit val protocol: RootJsonFormat[FileChecksum] = Protocol(fileAnalyzer.getDirectory)
     val array = JsArray((for (checksum <- fileAnalyzer.getChecksums) yield checksum.toJson).toVector)
     val entity = HttpEntity(ContentTypes.`application/json`, array.compactPrint)
     val request = HttpRequest(uri = address, entity = entity)
@@ -48,7 +49,7 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
           chunks
             .filterNot(_.isLastChunk)
             .map(_.data())
-            .runFold(new ChunkedDownloader(fileAnalyzer.getDirectory))((downloader, data) =>
+            .runFold(new ChunkedDownloader(fileAnalyzer.getDirectory.toFile))((downloader, data) =>
               downloader.process(data))
             .map(_.close())
 
