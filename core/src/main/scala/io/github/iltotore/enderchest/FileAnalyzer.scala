@@ -1,11 +1,13 @@
 package io.github.iltotore.enderchest
 
-import java.io.File
+import java.nio.file.{Files, Path}
 
+import akka.stream.Materializer
+import akka.stream.alpakka.file.scaladsl.Directory
 import com.desmondyeung.hashing.XxHash32
-import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
 /**
@@ -13,25 +15,24 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
  *
  * @param directory the directory to inspect.
  * @param exclude   the excluding predicate based on the file's relative path.
- * @param recursive true to inspect in depth directories.
  */
-class FileAnalyzer(directory: File, exclude: String => Boolean, recursive: Boolean) {
+class FileAnalyzer(directory: Path, exclude: String => Boolean = _ => false, maxDepth: Option[Int] = Option.empty, threadCount: Int = 10) {
 
-  private val checksums = ListBuffer[FileChecksum]()
+  private val checksums = ArrayBuffer[FileChecksum]()
 
   /**
    * Get generated checksums.
    *
    * @return checksums generated using the check method.
    */
-  def getChecksums: ListBuffer[FileChecksum] = checksums
+  def getChecksums: ArrayBuffer[FileChecksum] = checksums
 
   /**
    * Get the root directory.
    *
    * @return the first inspected directory.
    */
-  def getDirectory: File = directory
+  def getDirectory: Path = directory
 
   /**
    * Check files of the root directory.
@@ -39,28 +40,16 @@ class FileAnalyzer(directory: File, exclude: String => Boolean, recursive: Boole
    * @param context the context used to generate the future (implicit).
    * @return a Future[Int] containing the generated checksums count.
    */
-  def check(implicit context: ExecutionContextExecutor): Future[Int] = Future {
+  def check(implicit context: ExecutionContextExecutor, materializer: Materializer): Future[Int] = {
     checksums.clear()
-    checkDirectory(directory, directory)
-    checksums.size
-  }
-
-  /**
-   * Check the given directory.
-   *
-   * @param root      the root directory used to generate the relative path.
-   * @param directory the starting directory.
-   */
-  def checkDirectory(root: File, directory: File): Unit = {
-    for (file <- directory.listFiles()) {
-
-      if (file.isDirectory && recursive) checkDirectory(root, file) else {
-        val relativePath = file.getAbsolutePath.substring(root.getAbsolutePath.length + 1)
-        if (!exclude(relativePath)) {
-          val hash: Int = XxHash32.hashByteArray(FileUtils.readFileToByteArray(file), 0)
-          checksums += FileChecksum(relativePath, hash)
-        }
-      }
-    }
+    if (!Files.exists(directory)) Files.createDirectories(directory)
+    Directory.walk(directory, maxDepth)
+      .filterNot(path => Files.isDirectory(path))
+      .mapAsyncUnordered(threadCount)(path => Future {
+        FileChecksum(directory.relativize(path), XxHash32.hashByteArray(IOUtils.toByteArray(path.toUri), 0))
+      })
+      .runFold(checksums)((list, checksum) => {
+        list.addOne(checksum)
+      }).map(_.size)
   }
 }
