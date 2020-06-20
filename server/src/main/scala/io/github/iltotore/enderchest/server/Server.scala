@@ -6,8 +6,8 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 import akka.actor.{ActorSystem, Terminated}
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
+import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
@@ -23,11 +23,13 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 class Server(args: Array[String], configFile: File)(implicit system: ActorSystem, materializer: Materializer, contextExecutor: ExecutionContextExecutor) {
 
   var analyzer: FileAnalyzer = _
-  val http = Http()
+  val http: HttpExt = Http()
+  var dataChunkSize: Int = _
 
   def start(): Unit = {
     if (!configFile.exists()) Files.copy(getClass.getResourceAsStream("/config.yml"), configFile.toPath)
     val config = YamlConfiguration.loadConfiguration(configFile)
+    dataChunkSize = config.getInt("file.chunk-size", 8192)
     val dir = new File(config.getString("file.directory"))
     if (!dir.exists()) dir.mkdirs()
     val pattern = Pattern.compile(config.getString("file.exclude")).asPredicate()
@@ -48,14 +50,14 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
 
     val upload = Source(analyzer.getChecksums.toVector)
       .filterNot(receivedChecksums.contains)
-      .flatMapConcat(checksum => FileIO.fromPath(new File(analyzer.getDirectory, checksum.relativePath).toPath)
+      .flatMapConcat(checksum => FileIO.fromPath(new File(analyzer.getDirectory, checksum.relativePath).toPath, chunkSize = dataChunkSize)
         .prepend(Source(Vector(
           ByteString("ENDERCHEST_FILE_SEPARATOR"),
           ByteString(checksum.relativePath)
         ))))
 
     val toDelete = Source(receivedChecksums.toVector)
-      .filterNot(analyzer.getChecksums.contains)
+      .filterNot(checksum => analyzer.getChecksums.exists(_.relativePath.equals(checksum.relativePath)))
       .map(checksum => ByteString(checksum.relativePath))
       .prepend(Source.single(ByteString("ENDERCHEST_FILE_REMOVE")))
 

@@ -64,8 +64,8 @@ scaladoc {
     scalaClasspath+=project.configurations.implementation
 }
 
-task clearBuild {
-    buildDir.deleteDir()
+task clearBuild(type: Delete) {
+    delete buildDir
 }
 
 afterEvaluate {
