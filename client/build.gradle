@@ -51,8 +51,7 @@ sourcesJar {
     from included.collect { project(it).sourceSets.main.allScala }
 }
 
-task scaladocJar(type: Jar){
-    archiveClassifier = 'scaladoc'
+javadocJar {
     from new File(buildDir, 'docs/scaladoc')
     group 'build'
     dependsOn scaladoc
@@ -71,8 +70,6 @@ task clearBuild(type: Delete) {
 afterEvaluate {
     generateMetadataFileForMavenScalaPublication.dependsOn(clean)
 }
-
-javadocJar.dependsOn(scaladocJar)
 
 def scaladocFile = file("$buildDir/libs/client-$version-scaladoc.jar")
 def scaladocArtifact = artifacts.add('archives', scaladocFile)
@@ -140,6 +137,10 @@ publishing {
 signing {
     useGpgCmd()
     sign publishing.publications.mavenScala
+}
+
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
 }
 
 def scalaLib() {
