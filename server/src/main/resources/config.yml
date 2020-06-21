@@ -5,4 +5,4 @@ file:
   directory: "./files" # Updatable files directory path
   exclude: "a^" # Ignore all files matched by this regex
   max-depth: 20 # The max depth for file indexing
-  chunk-size: 8192 # The data chunk size in bytes. A bigger size will increase memory speed but it will also increase memory footprint.
+  chunk-size: 8192 # The data chunk size in bytes. A bigger size will increase speed but it will also increase memory footprint.
