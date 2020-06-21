@@ -57,6 +57,11 @@ libraryDependencies += "io.github.iltotore" %% "ec-client" % "version"
 ```
 </details>
 
+### Using the local file
+You can download the `client-xxx-withDependencies.jar` file in the releases tab, then simply add it to your IDE.
+Please not you must have the dependency in your classpath or directly in your archive.
+
+
 
 **You can now use EnderChest's client! See the wiki page for more informations**
 
@@ -64,7 +69,10 @@ libraryDependencies += "io.github.iltotore" %% "ec-client" % "version"
 ## Issues
 If you experience a bug/issue using EnderChest, you can create a new github issue.
 
-## General questions
-Join us on Discord
+## Useful links
+
+- [Client - Getting started](https://github.com/Iltotore/EnderChest/wiki/Client-Getting-started)
+- [Server - Getting started](https://github.com/Iltotore/EnderChest/wiki/Server-Getting-started)
+- Join us on Discord:
 
 [![JOIN ECS](https://discordapp.com/api/guilds/718109282406498415/embed.png?style=banner3)](https://discord.gg/zX3A8Nb)
