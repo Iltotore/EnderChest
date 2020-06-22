@@ -26,6 +26,30 @@ allprojects {
     compileScala.options.encoding = compileJava.options.encoding = compileTestScala.options.encoding = compileTestJava.options.encoding = 'UTF-8'
 }
 
+task cleanRelease(type: Delete) {
+    delete file("$buildDir/release")
+}
+
+afterEvaluate {
+    task release(type: Copy) {
+        dependsOn cleanRelease
+        dependsOn ':server:clean'
+        dependsOn ':server:shadowJar'
+        dependsOn ':client:clean'
+        dependsOn ':client:shadowJar'
+        dependsOn ':client:sourcesJar'
+        dependsOn ':client:javadocJar'
+        dependsOn ':client:scalaJar'
+
+        rename('(.*)-javadoc.jar', '$1-scaladoc.jar')
+
+        from "${project(':client').buildDir}/libs/", "${project(':server').buildDir}/libs"
+        into "$buildDir/release"
+
+        group 'build'
+    }
+}
+
 def getMajorScalaVersion() {
     String[] parts = scalaVersion.tokenize('.')
     return parts[0] + '.' + parts[1]

@@ -26,12 +26,17 @@ shadowJar {
     project.configurations.implementation.canBeResolved = true
     configurations = [project.configurations.implementation]
     append 'reference.conf'
+    archiveClassifier = 'withDependencies'
 }
 
 
 task generateLibs(type: Copy) {
     from configurations.compile.collect()
     into "${buildDir}/libraries"
+}
+
+task clearBuild(type: Delete) {
+    delete buildDir
 }
 
 def getMajorScalaVersion() {
