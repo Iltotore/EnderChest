@@ -15,8 +15,8 @@ for(Map.Entry<String, ?> entry : localProperties.entrySet()){
 
 
 dependencies {
-    implementation project(':core')
-    implementation scalaDependency('org.rogach', 'scallop', '3.4.0')
+    api project(':core')
+    api scalaDependency('org.rogach', 'scallop', '3.4.0')
 }
 
 def included = [':client', ':core']

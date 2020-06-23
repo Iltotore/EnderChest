@@ -18,5 +18,4 @@ object DefaultCommands {
     actor.terminate()
     commandThread.running = false
   })
-
 }

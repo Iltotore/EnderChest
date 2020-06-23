@@ -64,7 +64,7 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
     HttpResponse(entity = HttpEntity(ContentTypes.`application/octet-stream`, toDelete.prepend(upload)))
   }
 
-  def stop(): Future[Terminated] = system.terminate()
+  def stop(): Future[Terminated] = http.system.terminate()
 
   def processChecksum(json: JsObject): Option[FileChecksum] = {
     json.getFields("path", "hash") match {
