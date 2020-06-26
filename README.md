@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'io.github.iltotore:ec-client:version'
+  implementation 'io.github.iltotore:ec-client_2.13:version'
 }
 ```
 </details>
