@@ -1,4 +1,5 @@
-# EnderChest ![JOIN ECS](https://discordapp.com/api/guilds/718109282406498415/embed.png?style=shield) 
+# EnderChest 
+![JOIN ECS](https://discordapp.com/api/guilds/718109282406498415/embed.png?style=shield) 
 ![Downloads](https://img.shields.io/github/downloads/Iltotore/EnderChest/total?label=Server%20downloads&style=flat-square)
 ![Maven](https://img.shields.io/maven-central/v/io.github.iltotore/ec-client_2.13?color=green&style=flat-square)
 
