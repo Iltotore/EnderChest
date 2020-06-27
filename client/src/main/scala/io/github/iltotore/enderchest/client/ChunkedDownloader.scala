@@ -11,8 +11,10 @@ import io.github.iltotore.enderchest.EndLogger._
  *
  * @param root the directory to download in.
  */
-class ChunkedDownloader(root: File) {
+class ChunkedDownloader(root: File, onProgress: (Long, Long) => Unit) {
 
+  var count: Long = -1
+  var downloaded = 0
   var deleting = false
   var stream: OutputStream = _
 
@@ -22,9 +24,14 @@ class ChunkedDownloader(root: File) {
    * @param byteString the ByteString to process.
    * @return this ChunkedDownloader for chaining.
    */
-  def process(byteString: ByteString): ChunkedDownloader = {
-    if (deleting) {
-      info("Deleting " + byteString.utf8String)
+  def apply(byteString: ByteString): ChunkedDownloader = {
+    if (count < 0) {
+      println("Get size")
+      count = byteString.utf8String.toLong
+      println(count)
+    }
+    else if (deleting) {
+      println("Deleting " + byteString.utf8String)
       new File(root, byteString.utf8String).delete()
     } else if (byteString.utf8String.equals("ENDERCHEST_FILE_REMOVE")) {
       info("Starting to delete files...")
@@ -34,13 +41,14 @@ class ChunkedDownloader(root: File) {
       stream.close()
       stream = null
     } else if (stream == null) {
-      info(s"Beginning download of '${byteString.utf8String}'")
 
       val file = new File(root, byteString.utf8String)
       if (!file.getParentFile.exists()) file.getParentFile.mkdirs()
       if (!file.exists()) file.createNewFile()
       stream = new FileOutputStream(file)
     } else {
+      downloaded += byteString.length
+      onProgress(downloaded, count)
       stream.write(byteString.toArray)
     }
     this
@@ -48,7 +56,6 @@ class ChunkedDownloader(root: File) {
 
   /**
    * Close the last stream.
-   *
    * @return Done.
    */
   def close(): Done = {

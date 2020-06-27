@@ -46,8 +46,14 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
       processChecksum(value.asJsObject).foreach(receivedChecksums.addOne)
     }
 
-    val upload = Source(analyzer.getChecksums.toVector)
-      .filterNot(checksum => receivedChecksums.exists(checksum.equals))
+    var count = 0L
+
+    val requiredChecksums = for (checksum <- analyzer.getChecksums.toVector if !receivedChecksums.exists(checksum.equals)) yield {
+      count += checksum.length
+      checksum
+    }
+
+    val upload = Source(requiredChecksums)
       .flatMapConcat(checksum => FileIO.fromPath(analyzer.getDirectory.resolve(checksum.relativePath), chunkSize = dataChunkSize)
         .prepend(Source(Vector(
           ByteString("ENDERCHEST_FILE_SEPARATOR"),
@@ -59,16 +65,24 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
       .map(checksum => ByteString(checksum.relativePath.toString))
       .prepend(Source.single(ByteString("ENDERCHEST_FILE_REMOVE")))
 
+    val byteCount = ByteString(count.toString)
 
-    info(s"Sending flow...")
-    HttpResponse(entity = HttpEntity(ContentTypes.`application/octet-stream`, toDelete.prepend(upload)))
+    info(byteCount.utf8String)
+
+    val chunks = toDelete.prepend(upload).prepend(Source.single(byteCount)).map(string => HttpEntity.Chunk(string))
+
+    info(s"Sending $count bytes...")
+    HttpResponse(entity = HttpEntity.Chunked(ContentTypes.`application/octet-stream`, chunks))
   }
 
   def stop(): Future[Terminated] = http.system.terminate()
 
   def processChecksum(json: JsObject): Option[FileChecksum] = {
     json.getFields("path", "hash") match {
-      case Seq(JsString(path), JsNumber(hash)) => Option(FileChecksum(Paths.get(path), hash.toIntExact))
+      case Seq(JsString(path), JsNumber(hash)) =>
+        val relPath = Paths.get(path)
+        val length = analyzer.getDirectory.resolve(relPath).toFile.length()
+        Option(FileChecksum(relPath, hash.toIntExact, length))
 
       case _ => Option.empty
     }

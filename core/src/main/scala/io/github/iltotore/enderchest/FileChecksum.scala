@@ -13,7 +13,7 @@ import spray.json.{DeserializationException, JsNumber, JsObject, JsString, JsVal
  * @param relativePath the file's relative location.
  * @param hash         the file's hash as int.
  */
-case class FileChecksum(val relativePath: Path, val hash: Int) {
+case class FileChecksum(relativePath: Path, hash: Int, length: Long) {
 
   /**
    * Serialize this checksum into an OutputStream.
@@ -29,14 +29,12 @@ case class FileChecksum(val relativePath: Path, val hash: Int) {
   }
 
   override def equals(obj: Any): Boolean = obj match {
-    case FileChecksum(relativePath, hash) => this.relativePath.equals(relativePath) && this.hash.equals(hash)
+    case FileChecksum(relativePath, hash, _) => this.relativePath.equals(relativePath) && this.hash.equals(hash)
     case _ => false
   }
 }
 
 object FileChecksum {
-
-  def apply(relativePath: Path, hash: Int) = new FileChecksum(relativePath, hash)
 
   /**
    * Checksum JSON protocol
@@ -53,7 +51,7 @@ object FileChecksum {
       override def read(json: JsValue): FileChecksum = json.asJsObject.getFields("path", "hash") match {
         case Seq(JsString(path), JsNumber(hash)) =>
           println(path)
-          FileChecksum(root.resolve(path), hash.toIntExact)
+          FileChecksum(root.resolve(path), hash.toIntExact, 0)
 
         case _ => throw DeserializationException("Invalid checksum")
       }

@@ -38,7 +38,7 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
    *
    * @return the Future of this task.
    */
-  def update: Future[Done] = {
+  def update(implicit onProgress: (Long, Long) => Unit = (_, _) => ()): Future[Done] = {
     implicit val protocol: RootJsonFormat[FileChecksum] = Protocol(fileAnalyzer.getDirectory)
     val array = JsArray((for (checksum <- fileAnalyzer.getChecksums) yield checksum.toJson).toVector)
     val entity = HttpEntity(ContentTypes.`application/json`, array.compactPrint)
@@ -49,8 +49,8 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
           chunks
             .filterNot(_.isLastChunk)
             .map(_.data())
-            .runFold(new ChunkedDownloader(fileAnalyzer.getDirectory.toFile))((downloader, data) =>
-              downloader.process(data))
+            .runFold(new ChunkedDownloader(fileAnalyzer.getDirectory.toFile, onProgress))((downloader, data) =>
+              downloader(data))
             .map(_.close())
 
         case _ => throw new IllegalStateException("Received wrong response: " + response)

@@ -26,6 +26,9 @@ object Main {
     val path = Paths.get(System.getProperty("user.dir"), "download")
     if (!Files.exists(path)) Files.createFile(path)
 
+    implicit val progressStatus: (Long, Long) => Unit =
+      (downloaded, max) => println(s"Progress: ${downloaded.doubleValue / max * 100}% ($downloaded/$max)")
+
     val analyzer = new FileAnalyzer(path, exclude = _.startsWith(".MewProject\\shaderpacks\\"))
     val client = new EnderClient("http://localhost:8080", analyzer)
     val time = System.currentTimeMillis()

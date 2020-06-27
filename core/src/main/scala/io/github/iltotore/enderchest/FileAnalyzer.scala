@@ -46,7 +46,7 @@ class FileAnalyzer(directory: Path, exclude: String => Boolean = _ => false, max
     Directory.walk(directory, maxDepth)
       .filterNot(path => Files.isDirectory(path))
       .mapAsyncUnordered(threadCount)(path => Future {
-        FileChecksum(directory.relativize(path), XxHash32.hashByteArray(IOUtils.toByteArray(path.toUri), 0))
+        FileChecksum(directory.relativize(path), XxHash32.hashByteArray(IOUtils.toByteArray(path.toUri), 0), path.toFile.length())
       })
       .runFold(checksums)((list, checksum) => {
         list.addOne(checksum)
