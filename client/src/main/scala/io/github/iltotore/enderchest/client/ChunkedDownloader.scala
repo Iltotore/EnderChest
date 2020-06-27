@@ -10,7 +10,7 @@ import akka.util.ByteString
  *
  * @param root the directory to download in.
  */
-class ChunkedDownloader(root: File, onProgress: (Long, Long) => Unit, onDownloadingFile: DownloadAction, onDeletingFile: DeleteAction) {
+class ChunkedDownloader(root: File, onProgress: (Long, Long) => Unit, onDownloadingFile: FileDownloadAction, onDeletingFile: FileDeleteAction) {
 
   var count: Long = -1
   var downloaded = 0

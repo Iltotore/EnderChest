@@ -39,8 +39,8 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
    * @return the Future of this task.
    */
   def update(implicit onProgress: (Long, Long) => Unit = (_, _) => (),
-             onDownloadingFile: DownloadAction = _ => (),
-             onDeletingFile: DeleteAction = _ => ()): Future[Done] = {
+             onDownloadingFile: FileDownloadAction = _ => (),
+             onDeletingFile: FileDeleteAction = _ => ()): Future[Done] = {
     implicit val protocol: RootJsonFormat[FileChecksum] = Protocol(fileAnalyzer.getDirectory)
     val array = JsArray((for (checksum <- fileAnalyzer.getChecksums) yield checksum.toJson).toVector)
     val entity = HttpEntity(ContentTypes.`application/json`, array.compactPrint)

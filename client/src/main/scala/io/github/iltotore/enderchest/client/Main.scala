@@ -28,8 +28,8 @@ object Main {
 
     implicit val progressStatus: (Long, Long) => Unit =
       (downloaded, max) => println(s"Progress: ${downloaded.doubleValue / max * 100}% ($downloaded/$max)")
-    implicit val downloadLogger: DownloadAction = file => println(s"Downloading ${file.getName}...")
-    implicit val deleteLogger: DeleteAction = file => println(s"Deleting ${file.getName}...")
+    implicit val downloadLogger: FileDownloadAction = file => println(s"Downloading ${file.getName}...")
+    implicit val deleteLogger: FileDeleteAction = file => println(s"Deleting ${file.getName}...")
 
     val analyzer = new FileAnalyzer(path, exclude = _.startsWith(".MewProject\\shaderpacks\\"))
     val client = new EnderClient("http://localhost:8080", analyzer)
