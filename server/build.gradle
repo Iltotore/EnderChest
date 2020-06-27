@@ -18,7 +18,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes('Main-Class': 'fr.il_totore.enderchest.server.Main')
+        attributes('Main-Class': 'io.github.iltotore.enderchest.server.Main')
     }
 }
 
