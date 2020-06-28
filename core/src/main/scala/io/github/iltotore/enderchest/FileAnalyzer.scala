@@ -16,7 +16,7 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
  * @param directory the directory to inspect.
  * @param exclude   the excluding predicate based on the file's relative path.
  */
-class FileAnalyzer(directory: Path, exclude: String => Boolean = _ => false, maxDepth: Option[Int] = Option.empty, threadCount: Int = 10) {
+class FileAnalyzer(directory: Path, val exclude: String => Boolean = _ => false, maxDepth: Option[Int] = Option.empty, threadCount: Int = 10) {
 
   private val checksums = ArrayBuffer[FileChecksum]()
 

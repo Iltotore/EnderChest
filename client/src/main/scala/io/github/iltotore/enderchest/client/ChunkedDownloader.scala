@@ -10,7 +10,7 @@ import akka.util.ByteString
  *
  * @param root the directory to download in.
  */
-class ChunkedDownloader(root: File, onProgress: (Long, Long) => Unit, onDownloadingFile: FileDownloadAction, onDeletingFile: FileDeleteAction) {
+class ChunkedDownloader(root: File, exclude: String => Boolean, onProgress: ByteDownloadAction, onDownloadingFile: FileDownloadAction, onDeletingFile: FileDeleteAction) {
 
   var count: Long = -1
   var downloaded = 0
@@ -30,6 +30,7 @@ class ChunkedDownloader(root: File, onProgress: (Long, Long) => Unit, onDownload
       println(count)
     }
     else if (deleting) {
+      if (exclude(byteString.utf8String)) return this
       val file = new File(root, byteString.utf8String)
       onDeletingFile(file)
       file.delete()
@@ -54,6 +55,7 @@ class ChunkedDownloader(root: File, onProgress: (Long, Long) => Unit, onDownload
 
   /**
    * Close the last stream.
+   *
    * @return Done.
    */
   def close(): Done = {

@@ -38,7 +38,7 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
    *
    * @return the Future of this task.
    */
-  def update(implicit onProgress: (Long, Long) => Unit = (_, _) => (),
+  def update(implicit onProgress: ByteDownloadAction = (_, _) => (),
              onDownloadingFile: FileDownloadAction = _ => (),
              onDeletingFile: FileDeleteAction = _ => ()): Future[Done] = {
     implicit val protocol: RootJsonFormat[FileChecksum] = Protocol(fileAnalyzer.getDirectory)
@@ -51,7 +51,7 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
           chunks
             .filterNot(_.isLastChunk)
             .map(_.data())
-            .runFold(new ChunkedDownloader(fileAnalyzer.getDirectory.toFile, onProgress, onDownloadingFile, onDeletingFile))((downloader, data) =>
+            .runFold(new ChunkedDownloader(fileAnalyzer.getDirectory.toFile, fileAnalyzer.exclude, onProgress, onDownloadingFile, onDeletingFile))((downloader, data) =>
               downloader(data))
             .map(_.close())
 
