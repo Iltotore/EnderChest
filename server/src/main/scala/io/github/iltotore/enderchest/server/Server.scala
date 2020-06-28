@@ -67,8 +67,6 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
 
     val byteCount = ByteString(count.toString)
 
-    info(byteCount.utf8String)
-
     val chunks = toDelete.prepend(upload).prepend(Source.single(byteCount)).map(string => HttpEntity.Chunk(string))
 
     info(s"Sending $count bytes...")

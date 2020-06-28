@@ -24,11 +24,7 @@ class ChunkedDownloader(root: File, exclude: String => Boolean, onProgress: Byte
    * @return this ChunkedDownloader for chaining.
    */
   def apply(byteString: ByteString): ChunkedDownloader = {
-    if (count < 0) {
-      println("Get size")
-      count = byteString.utf8String.toLong
-      println(count)
-    }
+    if (count < 0) count = byteString.utf8String.toLong
     else if (deleting) {
       if (exclude(byteString.utf8String)) return this
       val file = new File(root, byteString.utf8String)

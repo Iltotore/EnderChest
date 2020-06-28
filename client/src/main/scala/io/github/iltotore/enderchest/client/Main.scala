@@ -1,6 +1,6 @@
 package io.github.iltotore.enderchest.client
 
-import java.nio.file.{Files, Paths}
+import java.nio.file.Paths
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
@@ -23,10 +23,9 @@ object Main {
     implicit val materializer: Materializer = ActorMaterializer()
     // needed for the future flatMap/onComplete in the end
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
-    val path = Paths.get(System.getProperty("user.dir"), "download")
-    if (!Files.exists(path)) Files.createFile(path)
+    val path = Paths.get(System.getProperty("user.dir"), "downloads/")
 
-    implicit val progressStatus: (Long, Long) => Unit =
+    implicit val progressStatus: ByteDownloadAction =
       (downloaded, max) => println(s"Progress: ${downloaded.doubleValue / max * 100}% ($downloaded/$max)")
     implicit val downloadLogger: FileDownloadAction = file => println(s"Downloading ${file.getName}...")
     implicit val deleteLogger: FileDeleteAction = file => println(s"Deleting ${file.getName}...")
