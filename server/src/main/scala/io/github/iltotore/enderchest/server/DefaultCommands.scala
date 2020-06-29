@@ -1,5 +1,7 @@
 package io.github.iltotore.enderchest.server
 
+import java.lang.management.ManagementFactory
+
 import akka.actor.ActorSystem
 import io.github.iltotore.enderchest.EndLogger._
 import io.github.iltotore.enderchest.server.CommandHandler.Command
@@ -17,5 +19,11 @@ object DefaultCommands {
     info("Stopping server...")
     actor.terminate()
     commandThread.running = false
+  })
+
+  def top: Command = Command("Show memory statistics", _ => {
+    info("==== EnderChest Analysis ====")
+    info(s"Memory Usage: ${(Runtime.getRuntime.totalMemory() - Runtime.getRuntime.freeMemory()) / 1024D} KB")
+    info(s"Heap: ${ManagementFactory.getMemoryMXBean.getHeapMemoryUsage}")
   })
 }
