@@ -3,7 +3,7 @@ package io.github.iltotore.enderchest.client
 import java.nio.file.Paths
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.Materializer
 import com.typesafe.config.ConfigFactory
 import io.github.iltotore.enderchest.FileAnalyzer
 
@@ -20,7 +20,7 @@ object Main {
         |akka.http.client.parsing.max-content-length=infinite""".stripMargin)
 
     implicit val system: ActorSystem = ActorSystem("my-system", ConfigFactory.load(config))
-    implicit val materializer: Materializer = ActorMaterializer()
+    implicit val materializer: Materializer = Materializer(system)
     // needed for the future flatMap/onComplete in the end
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
     val path = Paths.get(System.getProperty("user.dir"), "downloads/")

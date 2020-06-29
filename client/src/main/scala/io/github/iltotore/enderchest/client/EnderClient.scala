@@ -4,7 +4,7 @@ import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest}
 import akka.http.scaladsl.{Http, HttpExt}
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.Materializer
 import io.github.iltotore.enderchest.FileChecksum.Protocol
 import io.github.iltotore.enderchest.{FileAnalyzer, FileChecksum}
 import spray.json._
@@ -64,7 +64,7 @@ object EnderClient {
 
   val DEFAULT_SYSTEM: ActorSystem = ActorSystem("enderchest")
   val DEFAULT_EXECUTION_CONTEXT: ExecutionContextExecutor = DEFAULT_SYSTEM.dispatcher
-  val DEFAULT_MATERIALIZER: Materializer = ActorMaterializer()(DEFAULT_SYSTEM)
+  val DEFAULT_MATERIALIZER: Materializer = Materializer(DEFAULT_SYSTEM)
 
   /**
    * The core class of the client.

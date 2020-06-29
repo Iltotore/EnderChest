@@ -29,7 +29,7 @@ case class FileChecksum(relativePath: Path, hash: Int, length: Long) {
   }
 
   override def equals(obj: Any): Boolean = obj match {
-    case FileChecksum(relativePath, hash, _) => this.relativePath.equals(relativePath) && this.hash.equals(hash)
+    case FileChecksum(relativePath, hash, _) => this.relativePath.equals(relativePath) && this.hash == hash
     case _ => false
   }
 }

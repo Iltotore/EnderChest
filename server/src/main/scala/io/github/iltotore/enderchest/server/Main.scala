@@ -5,7 +5,7 @@ import java.util.logging.Level
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.common.{EntityStreamingSupport, JsonEntityStreamingSupport}
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.Materializer
 import io.github.iltotore.enderchest.EndLogger._
 
 import scala.concurrent.ExecutionContextExecutor
@@ -15,7 +15,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     implicit val system: ActorSystem = ActorSystem("enderchest")
-    implicit val materializer: Materializer = ActorMaterializer()
+    implicit val materializer: Materializer = Materializer(system)
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
     implicit val jsonStreamingSupport: JsonEntityStreamingSupport = EntityStreamingSupport.json()
       .withParallelMarshalling(6, unordered = true)
@@ -38,6 +38,7 @@ object Main {
     val cmdThread = new CommandThread(cmdHandler)
     cmdHandler.register("help", DefaultCommands.help)
     cmdHandler.register("stop", DefaultCommands.stop(system, cmdThread))
+    cmdHandler.register("top", DefaultCommands.top)
     cmdThread.start()
   }
 }
