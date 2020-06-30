@@ -30,7 +30,7 @@ object Main {
     implicit val downloadLogger: FileDownloadAction = file => println(s"Downloading ${file.getName}...")
     implicit val deleteLogger: FileDeleteAction = file => println(s"Deleting ${file.getName}...")
 
-    val analyzer = new FileAnalyzer(path, exclude = _ => true)
+    val analyzer = new FileAnalyzer(path)(exclude = _ => true)
     val client = new EnderClient("http://localhost:8080", analyzer)
     val time = System.currentTimeMillis()
     client.checkFiles
