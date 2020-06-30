@@ -4,7 +4,6 @@ import java.io.File
 import java.util.logging.Level
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.common.{EntityStreamingSupport, JsonEntityStreamingSupport}
 import akka.stream.Materializer
 import io.github.iltotore.enderchest.EndLogger._
 
@@ -20,8 +19,6 @@ object Main {
     implicit val system: ActorSystem = ActorSystem("enderchest")
     implicit val materializer: Materializer = Materializer(system)
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
-    implicit val jsonStreamingSupport: JsonEntityStreamingSupport = EntityStreamingSupport.json()
-      .withParallelMarshalling(6, unordered = true)
 
     val directory = new File(System.getProperty("user.dir"))
 
