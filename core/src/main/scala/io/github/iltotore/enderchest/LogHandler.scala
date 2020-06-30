@@ -7,7 +7,7 @@ import java.util.logging.{ConsoleHandler, Level}
  */
 class LogHandler extends ConsoleHandler {
 
-  setLevel(Level.FINER)
+  setLevel(Level.ALL)
   setEncoding("UTF-8")
   setOutputStream(System.out)
   setFormatter(new LogFormatter)
