@@ -30,7 +30,7 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
     dataChunkSize = config.getInt("file.chunk-size", 8192)
     val pattern = Pattern.compile(config.getString("file.exclude")).asPredicate()
     val exclude = pattern.test _
-    analyzer = new FileAnalyzer(Paths.get(System.getProperty("user.dir"), config.getString("file.directory")), exclude = exclude, maxDepth = Option(config.getInt("file.max-depth")).filter(_ >= 0))
+    analyzer = new FileAnalyzer(Paths.get(System.getProperty("user.dir"), config.getString("file.directory")))(exclude = exclude, maxDepth = Option(config.getInt("file.max-depth")).filter(_ >= 0))
 
     http.bindAndHandleAsync(request => {
       request.entity.dataBytes
