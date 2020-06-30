@@ -5,6 +5,8 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.Materializer
+import akka.stream.scaladsl.Source
+import akka.util.ByteString
 import io.github.iltotore.enderchest.FileChecksum.Protocol
 import io.github.iltotore.enderchest.{FileAnalyzer, FileChecksum}
 import spray.json._
@@ -38,14 +40,18 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
    *
    * @return the Future of this task.
    */
-  def update(implicit onProgress: ByteDownloadAction = (_, _) => (),
+  def update(parallelism: Int = Runtime.getRuntime.availableProcessors())
+            (implicit onProgress: ByteDownloadAction = (_, _) => (),
              onDownloadingFile: FileDownloadAction = _ => (),
              onDeletingFile: FileDeleteAction = _ => ()): Future[Done] = {
+
     implicit val protocol: RootJsonFormat[FileChecksum] = Protocol(fileAnalyzer.getDirectory)
-    val array = JsArray((for (checksum <- fileAnalyzer.getChecksums) yield checksum.toJson).toVector)
-    val entity = HttpEntity(ContentTypes.`application/json`, array.compactPrint)
-    val request = HttpRequest(uri = address, entity = entity)
-    http.singleRequest(request)
+    val checksums = Source(fileAnalyzer.getChecksums.toVector)
+      .mapAsyncUnordered(parallelism)(checksum => Future {
+        ByteString(checksum.toJson.toString())
+      })
+    val entity = HttpEntity(ContentTypes.`application/json`, checksums)
+    http.singleRequest(HttpRequest(entity = entity))
       .flatMap(response => response.entity match {
         case HttpEntity.Chunked(_, chunks) =>
           chunks
