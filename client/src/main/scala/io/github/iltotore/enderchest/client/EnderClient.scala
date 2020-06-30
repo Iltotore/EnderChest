@@ -40,16 +40,13 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
    *
    * @return the Future of this task.
    */
-  def update(parallelism: Int = Runtime.getRuntime.availableProcessors())
-            (implicit onProgress: ByteDownloadAction = (_, _) => (),
+  def update(implicit onProgress: ByteDownloadAction = (_, _) => (),
              onDownloadingFile: FileDownloadAction = _ => (),
              onDeletingFile: FileDeleteAction = _ => ()): Future[Done] = {
 
     implicit val protocol: RootJsonFormat[FileChecksum] = Protocol(fileAnalyzer.getDirectory)
     val checksums = Source(fileAnalyzer.getChecksums.toVector)
-      .mapAsyncUnordered(parallelism)(checksum => Future {
-        ByteString(checksum.toJson.toString())
-      })
+      .map(checksum => ByteString(checksum.toJson.toString()))
     val entity = HttpEntity(ContentTypes.`application/json`, checksums)
     http.singleRequest(HttpRequest(entity = entity))
       .flatMap(response => response.entity match {
