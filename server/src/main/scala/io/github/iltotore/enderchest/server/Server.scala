@@ -74,7 +74,7 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
     HttpResponse(entity = HttpEntity.Chunked(ContentTypes.`application/octet-stream`, chunks))
   }
 
-  def stop(): Future[Terminated] = http.system.terminate()
+  def stop(): Future[Terminated] = http.shutdownAllConnectionPools().flatMap(_ => system.terminate())
 
   def processChecksum(json: JsObject): Option[FileChecksum] = {
     json.getFields("path", "hash") match {

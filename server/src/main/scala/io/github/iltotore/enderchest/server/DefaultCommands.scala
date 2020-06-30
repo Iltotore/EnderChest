@@ -2,7 +2,6 @@ package io.github.iltotore.enderchest.server
 
 import java.lang.management.ManagementFactory
 
-import akka.actor.ActorSystem
 import io.github.iltotore.enderchest.EndLogger._
 import io.github.iltotore.enderchest.server.CommandHandler.Command
 
@@ -15,9 +14,9 @@ object DefaultCommands {
     info(help.toString())
   })
 
-  def stop(actor: ActorSystem, commandThread: CommandThread): Command = Command("Stop the server", _ => {
+  def stop(server: Server, commandThread: CommandThread): Command = Command("Stop the server", _ => {
     info("Stopping server...")
-    actor.terminate()
+    server.stop()
     commandThread.running = false
   })
 

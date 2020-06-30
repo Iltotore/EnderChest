@@ -11,6 +11,9 @@ import io.github.iltotore.enderchest.EndLogger._
 import scala.concurrent.ExecutionContextExecutor
 import scala.util.{Failure, Success}
 
+//TODO https://stackoverflow.com/questions/60431412/how-to-minimize-memory-usage-in-akka-streams
+//TODO PoisonPill ?
+
 object Main {
 
   def main(args: Array[String]): Unit = {
@@ -37,7 +40,7 @@ object Main {
     val cmdHandler = new CommandHandler
     val cmdThread = new CommandThread(cmdHandler)
     cmdHandler.register("help", DefaultCommands.help)
-    cmdHandler.register("stop", DefaultCommands.stop(system, cmdThread))
+    cmdHandler.register("stop", DefaultCommands.stop(app, cmdThread))
     cmdHandler.register("top", DefaultCommands.top)
     cmdThread.start()
   }

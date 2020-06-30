@@ -48,7 +48,7 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
     val checksums = Source(fileAnalyzer.getChecksums.toVector)
       .map(checksum => ByteString(checksum.toJson.toString()))
     val entity = HttpEntity(ContentTypes.`application/json`, checksums)
-    http.singleRequest(HttpRequest(entity = entity))
+    http.singleRequest(HttpRequest(uri = address, entity = entity))
       .flatMap(response => response.entity match {
         case HttpEntity.Chunked(_, chunks) =>
           chunks
