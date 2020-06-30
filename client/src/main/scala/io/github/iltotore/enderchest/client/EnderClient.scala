@@ -73,7 +73,7 @@ object EnderClient {
   val DEFAULT_MATERIALIZER: Materializer = Materializer(DEFAULT_SYSTEM)
 
   /**
-   * The core class of the client.
+   * Used to make more user-friendly companion constructor.
    *
    * @param address      the server address as String.
    * @param fileAnalyzer the file analyzer used to generate checksum.
