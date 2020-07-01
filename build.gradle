@@ -51,8 +51,8 @@ afterEvaluate {
     }
 }
 
-def getMajorScalaVersion() {
-    String[] parts = scalaVersion.tokenize('.')
+def getMajorVersion(String version) {
+    String[] parts = version.tokenize('.')
     return parts[0] + '.' + parts[1]
 }
 
@@ -61,7 +61,7 @@ def scalaModule(String name, String version) {
 }
 
 def scalaDependency(String company, String name, String version) {
-    return company + ':' + name + '_' + getMajorScalaVersion() + ':' + version
+    return company + ':' + name + '_' + getMajorVersion(scalaVersion) + ':' + version
 }
 
 def scalaLib() {
