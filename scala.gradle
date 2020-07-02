@@ -1,0 +1,20 @@
+apply from: "$rootProject.rootDir/common.gradle"
+
+ext {
+    scalaVersion = '2.13.3'
+    scalaModule = this.&scalaModule
+    scalaLib = this.&scalaLib
+    scalaDependency = this.&scalaDependency
+}
+
+def scalaModule(String name, String version) {
+    return scalaDependency('org.scala-lang.modules', name, version)
+}
+
+def scalaDependency(String company, String name, String version) {
+    return "$company:${name}_${getMajorVersion(project.scalaVersion)}:$version"
+}
+
+def scalaLib() {
+    return "org.scala-lang:scala-library:$scalaVersion"
+}

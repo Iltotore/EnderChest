@@ -13,14 +13,12 @@ for(Map.Entry<String, ?> entry : localProperties.entrySet()){
     project.ext[entry.getKey()] = entry.getValue()
 }
 
-
 dependencies {
     api project(':core')
     api scalaDependency('org.rogach', 'scallop', '3.4.0')
 }
 
 def included = [':client', ':core']
-
 
 shadowJar {
     project.configurations.implementation.canBeResolved = true
@@ -77,7 +75,7 @@ def scaladocArtifact = artifacts.add('archives', scaladocFile)
 publishing {
     publications {
         mavenScala(MavenPublication) {
-            artifactId = 'ec-client_' + getMajorScalaVersion()
+            artifactId = 'ec-client_' + getMajorVersion(scalaVersion)
 
             versionMapping {
                 usage('java-api') {
@@ -141,8 +139,4 @@ signing {
 
 tasks.withType(GenerateModuleMetadata) {
     enabled = false
-}
-
-def scalaLib() {
-    return 'org.scala-lang:scala-library:' + scalaVersion
 }

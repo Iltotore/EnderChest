@@ -1,0 +1,6 @@
+ext.getMajorVersion = this.&getMajorVersion
+
+def getMajorVersion(String version) {
+    String[] parts = version.tokenize('.')
+    return parts[0] + '.' + parts[1]
+}

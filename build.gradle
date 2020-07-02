@@ -1,9 +1,15 @@
+//noinspection GroovyAssignabilityCheck
 allprojects {
+
+    apply from: "$rootProject.rootDir/scala.gradle"
+
     ext {
         scalaVersion = '2.13.3'
     }
+
     apply plugin: 'scala'
     apply plugin: 'java-library'
+
 
     group 'io.github.iltotore'
     version '1.2.1'
@@ -13,15 +19,17 @@ allprojects {
         jcenter()
     }
 
-    dependencies {
-        api scalaLib()
-        api scalaDependency('com.lightbend.akka', 'akka-stream-alpakka-file', '2.0.1')
-        api scalaDependency('com.typesafe.akka', 'akka-http', '10.2.0-M1')
-        api scalaDependency('com.typesafe.akka', 'akka-stream', '2.6.5')
-        api scalaDependency('com.typesafe.akka', 'akka-http-spray-json', '10.2.0-M1')
-        api scalaDependency('com.desmondyeung.hashing', 'scala-hashing', '0.1.0')
-        api scalaDependency('io.spray', 'spray-json', '1.3.5')
-        api 'commons-io:commons-io:2.6'
+    afterEvaluate {
+        dependencies {
+            api scalaLib()
+            api scalaDependency('com.lightbend.akka', 'akka-stream-alpakka-file', '2.0.1')
+            api scalaDependency('com.typesafe.akka', 'akka-http', '10.2.0-M1')
+            api scalaDependency('com.typesafe.akka', 'akka-stream', '2.6.5')
+            api scalaDependency('com.typesafe.akka', 'akka-http-spray-json', '10.2.0-M1')
+            api scalaDependency('com.desmondyeung.hashing', 'scala-hashing', '0.1.0')
+            api scalaDependency('io.spray', 'spray-json', '1.3.5')
+            api 'commons-io:commons-io:2.6'
+        }
     }
 
     compileScala.options.encoding = compileJava.options.encoding = compileTestScala.options.encoding = compileTestJava.options.encoding = 'UTF-8'
@@ -49,21 +57,4 @@ afterEvaluate {
 
         group 'build'
     }
-}
-
-def getMajorVersion(String version) {
-    String[] parts = version.tokenize('.')
-    return parts[0] + '.' + parts[1]
-}
-
-def scalaModule(String name, String version) {
-    return scalaDependency('org.scala-lang.modules', name, version)
-}
-
-def scalaDependency(String company, String name, String version) {
-    return company + ':' + name + '_' + getMajorVersion(scalaVersion) + ':' + version
-}
-
-def scalaLib() {
-    return 'org.scala-lang:scala-library:' + scalaVersion
 }
