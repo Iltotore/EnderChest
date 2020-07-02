@@ -4,6 +4,7 @@ import java.io.{DataOutputStream, File}
 import java.nio.file.Path
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import io.github.iltotore.enderchest.Implicits._
 import org.apache.commons.io.FileUtils
 import spray.json.{DeserializationException, JsNumber, JsObject, JsString, JsValue, RootJsonFormat}
 
@@ -29,7 +30,9 @@ case class FileChecksum(relativePath: Path, hash: Int, length: Long) {
   }
 
   override def equals(obj: Any): Boolean = obj match {
-    case FileChecksum(relativePath, hash, _) => this.relativePath.equals(relativePath) && this.hash == hash
+    case FileChecksum(relativePath, hash, _) =>
+      if (this.relativePath.isSimilarTo(relativePath) && this.hash != hash) println(s"Path: $relativePath, hashes: $hash && ${this.hash}")
+      this.relativePath.isSimilarTo(relativePath) && this.hash == hash
     case _ => false
   }
 }

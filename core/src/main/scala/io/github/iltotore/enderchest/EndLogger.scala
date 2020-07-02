@@ -124,4 +124,5 @@ object EndLogger {
   def getParent: Logger = LOGGER.getParent
 
   def setParent(parent: Logger): Unit = LOGGER.setParent(parent)
+
 }

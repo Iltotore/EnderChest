@@ -10,9 +10,6 @@ import io.github.iltotore.enderchest.EndLogger._
 import scala.concurrent.ExecutionContextExecutor
 import scala.util.{Failure, Success}
 
-//TODO https://stackoverflow.com/questions/60431412/how-to-minimize-memory-usage-in-akka-streams
-//TODO PoisonPill ?
-
 object Main {
 
   def main(args: Array[String]): Unit = {
@@ -28,7 +25,6 @@ object Main {
     info("Indexing files...")
     val time = System.currentTimeMillis()
     app.analyzer.check.onComplete {
-
       case Success(count) => fine(s"Successfully indexed $count files in ${System.currentTimeMillis() - time}ms")
 
       case Failure(exception) => log(Level.WARNING, "Unable to process files.", exception)

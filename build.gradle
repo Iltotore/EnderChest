@@ -19,7 +19,6 @@ allprojects {
         jcenter()
     }
 
-    afterEvaluate {
         dependencies {
             api scalaLib()
             api scalaDependency('com.lightbend.akka', 'akka-stream-alpakka-file', '2.0.1')
@@ -30,7 +29,6 @@ allprojects {
             api scalaDependency('io.spray', 'spray-json', '1.3.5')
             api 'commons-io:commons-io:2.6'
         }
-    }
 
     compileScala.options.encoding = compileJava.options.encoding = compileTestScala.options.encoding = compileTestJava.options.encoding = 'UTF-8'
 }

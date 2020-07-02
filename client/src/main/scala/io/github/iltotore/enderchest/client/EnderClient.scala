@@ -2,7 +2,7 @@ package io.github.iltotore.enderchest.client
 
 import akka.Done
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest, StatusCodes}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
@@ -45,20 +45,25 @@ class EnderClient(address: String, fileAnalyzer: FileAnalyzer)
              onDeletingFile: FileDeleteAction = _ => ()): Future[Done] = {
 
     implicit val protocol: RootJsonFormat[FileChecksum] = Protocol(fileAnalyzer.getDirectory)
+
+
     val checksums = Source(fileAnalyzer.getChecksums.toVector)
       .map(checksum => ByteString(checksum.toJson.toString()))
+
     val entity = HttpEntity(ContentTypes.`application/json`, checksums)
     http.singleRequest(HttpRequest(uri = address, entity = entity))
-      .flatMap(response => response.entity match {
-        case HttpEntity.Chunked(_, chunks) =>
-          chunks
-            .filterNot(_.isLastChunk)
-            .map(_.data())
-            .runFold(new ChunkedDownloader(fileAnalyzer.getDirectory.toFile, fileAnalyzer.exclude, onProgress, onDownloadingFile, onDeletingFile))((downloader, data) =>
-              downloader(data))
-            .map(_.close())
+      .flatMap(response => {
+        if (response._1 == StatusCodes.OK) response.entity match {
+          case HttpEntity.Chunked(_, chunks) =>
+            chunks
+              .filterNot(_.isLastChunk)
+              .map(_.data())
+              .runFold(new ChunkedDownloader(fileAnalyzer.getDirectory.toFile, fileAnalyzer.exclude, onProgress, onDownloadingFile, onDeletingFile))((downloader, data) =>
+                downloader(data))
+              .map(_.close())
 
-        case _ => throw new IllegalStateException("Received wrong response: " + response)
+          case _ => throw new IllegalStateException("Received wrong response: " + response)
+        } else throw new IllegalStateException("Received wrong response: " + response)
       })
   }
 }

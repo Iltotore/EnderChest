@@ -4,26 +4,29 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots'}
-    maven { url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'}
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'https://oss.sonatype.org/service/local/staging/deploy/maven2' }
     maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     implementation project(':core')
     implementation scalaDependency('org.rogach', 'scallop', '3.4.0')
-    implementation 'com.github.Carleslc:Simple-YAML:1.4.1'
+    implementation 'com.github.Carleslc:Simple-YAML:1.4.2'
     implementation 'org.apache.logging.log4j:log4j-core:2.13.3'
 }
 
 jar {
+    configurations.implementation.canBeResolved = true
     manifest {
-        attributes('Main-Class': 'io.github.iltotore.enderchest.server.Main')
+        attributes(
+                'Main-Class': 'io.github.iltotore.enderchest.server.Main',
+                'Class-Path': configurations.implementation.collect { 'libraries/' + it.getName() }.join(' ')
+        )
     }
 }
 
 shadowJar {
-    project.configurations.implementation.canBeResolved = true
     configurations = [project.configurations.implementation]
     append 'reference.conf'
     archiveClassifier = 'withDependencies'
@@ -31,38 +34,10 @@ shadowJar {
 
 
 task generateLibs(type: Copy) {
-    from configurations.compile.collect()
+    from configurations.implementation.collect()
     into "${buildDir}/libraries"
 }
 
 task clearBuild(type: Delete) {
     delete buildDir
-}
-
-def getMajorScalaVersion() {
-    String[] parts = scalaVersion.tokenize('.')
-    return parts[0] + '.' + parts[1]
-}
-
-def scalaModule(String name, String version) {
-    return scalaDependency('org.scala-lang.modules', name, version)
-}
-
-def scalaDependency(String company, String name, String version) {
-    return company + ':' + name + '_' + getMajorScalaVersion() + ':' + version
-}
-
-def scalaLib() {
-    return 'org.scala-lang:scala-library:' + scalaVersion
-}
-
-def getJavaLibs() {
-    if(JavaVersion.current().isJava9Compatible()) {
-        return files("${System.getProperty("java.home")}/jmods")
-    } else {
-        return files(
-                "${System.getProperty("java.home")}/lib/rt.jar",
-                "${System.getProperty("java.home")}/lib/jce.jar"
-        )
-    }
 }

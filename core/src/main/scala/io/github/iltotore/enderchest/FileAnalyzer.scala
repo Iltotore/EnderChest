@@ -1,5 +1,6 @@
 package io.github.iltotore.enderchest
 
+import java.io.FileInputStream
 import java.nio.file.{Files, Path}
 
 import akka.stream.Materializer
@@ -46,7 +47,7 @@ class FileAnalyzer(directory: Path)(val exclude: String => Boolean = _ => false,
     Directory.walk(directory, maxDepth)
       .filterNot(path => Files.isDirectory(path))
       .mapAsyncUnordered(threadCount)(path => Future {
-        FileChecksum(directory.relativize(path), XxHash32.hashByteArray(IOUtils.toByteArray(path.toUri), 0), path.toFile.length())
+        FileChecksum(directory.relativize(path), XxHash32.hashByteArray(IOUtils.toByteArray(new FileInputStream(path.toFile)), 0), path.toFile.length())
       })
       .runFold(checksums)((list, checksum) => {
         list.addOne(checksum)

@@ -1,22 +1,25 @@
 package io.github.iltotore.enderchest.server
 
-import java.io.File
+import java.io.{File, PrintWriter, StringWriter}
 import java.nio.file.{Files, Paths}
+import java.util.logging.Level
 import java.util.regex.Pattern
 
 import akka.actor.{ActorSystem, Terminated}
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.{Http, HttpExt}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import io.github.iltotore.enderchest.EndLogger._
+import io.github.iltotore.enderchest.Implicits._
 import io.github.iltotore.enderchest.{FileAnalyzer, FileChecksum}
 import org.simpleyaml.configuration.file.YamlConfiguration
 import spray.json.{JsNumber, JsObject, JsString, _}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.util.Failure
 
 class Server(args: Array[String], configFile: File)(implicit system: ActorSystem, materializer: Materializer, contextExecutor: ExecutionContextExecutor) {
 
@@ -31,7 +34,10 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
     val pattern = Pattern.compile(config.getString("file.exclude")).asPredicate()
     val exclude = pattern.test _
     analyzer = new FileAnalyzer(Paths.get(System.getProperty("user.dir"), config.getString("file.directory")))(exclude = exclude, maxDepth = Option(config.getInt("file.max-depth")).filter(_ >= 0))
-
+    system.whenTerminated.onComplete {
+      case Failure(exception) => log(Level.WARNING, exception.getMessage, exception)
+      case _ =>
+    }
     http.bindAndHandleAsync(request => {
       request.entity.dataBytes
         .map(_.utf8String.parseJson.asJsObject)
@@ -41,6 +47,13 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
         .runFold(ArrayBuffer[FileChecksum]())((array, checksum) => array += checksum)
         .map(_.toVector)
         .map(receiveUpdatePart)
+        .recover(e => {
+          val stacktraceWriter = new StringWriter()
+          val stacktracePrinter = new PrintWriter(stacktraceWriter)
+          e.printStackTrace()
+          e.printStackTrace(stacktracePrinter)
+          HttpResponse(status = StatusCodes.InternalServerError, entity = HttpEntity(s"${e.getMessage}: $stacktraceWriter"))
+        })
     }, config.getString("network.ip"), config.getInt("network.port"))
     info(s"Listening ${config.getString("network.ip")}:${config.getInt("network.port")}")
   }
@@ -61,8 +74,9 @@ class Server(args: Array[String], configFile: File)(implicit system: ActorSystem
           ByteString(checksum.relativePath.toString)
         ))))
 
+
     val toDelete = Source(receivedChecksums)
-      .filterNot(checksum => analyzer.getChecksums.exists(_.relativePath.equals(checksum.relativePath)))
+      .filterNot(checksum => analyzer.getChecksums.exists(_.relativePath.isSimilarTo(checksum.relativePath)))
       .map(checksum => ByteString(checksum.relativePath.toString))
       .prepend(Source.single(ByteString("ENDERCHEST_FILE_REMOVE")))
 
