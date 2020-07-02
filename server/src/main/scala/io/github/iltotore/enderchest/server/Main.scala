@@ -19,7 +19,7 @@ object Main {
 
     val directory = new File(System.getProperty("user.dir"))
 
-    val app: Server = new Server(args, new File(directory, "config.yml"))
+    val app: Server = new Server(new File(directory, "config.yml"))
     info("Starting server...")
     app.start()
     info("Indexing files...")

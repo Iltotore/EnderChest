@@ -21,7 +21,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.Failure
 
-class Server(args: Array[String], configFile: File)(implicit system: ActorSystem, materializer: Materializer, contextExecutor: ExecutionContextExecutor) {
+class Server(configFile: File)(implicit system: ActorSystem, materializer: Materializer, contextExecutor: ExecutionContextExecutor) {
 
   var analyzer: FileAnalyzer = _
   val http: HttpExt = Http()
