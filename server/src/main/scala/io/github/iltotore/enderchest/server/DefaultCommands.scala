@@ -5,6 +5,9 @@ import java.lang.management.ManagementFactory
 import io.github.iltotore.enderchest.EndLogger._
 import io.github.iltotore.enderchest.server.CommandHandler.Command
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 object DefaultCommands {
 
   def help: Command = Command("Show help", handler => {
@@ -14,10 +17,12 @@ object DefaultCommands {
     info(help.toString())
   })
 
-  def stop(server: Server, commandThread: CommandThread): Command = Command("Stop the server", _ => {
+  def stop(server: Server): Command = Command("Stop the server", _ => {
     info("Stopping server...")
-    server.stop()
-    commandThread.running = false
+    val time = System.currentTimeMillis()
+    Await.ready(server.stop(), 15.seconds)
+    if (System.currentTimeMillis() - time >= 15000) info("Stopping process was too long! Skipping...")
+    info("Bye !")
   })
 
   def top: Command = Command("Show memory statistics", _ => {

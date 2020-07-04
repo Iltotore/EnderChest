@@ -19,7 +19,7 @@ import spray.json.{JsNumber, JsObject, JsString, _}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContextExecutor, Future}
-import scala.util.Failure
+import scala.util.{Failure, Success}
 
 class Server(configFile: File)(implicit system: ActorSystem, materializer: Materializer, contextExecutor: ExecutionContextExecutor) {
 
@@ -30,14 +30,21 @@ class Server(configFile: File)(implicit system: ActorSystem, materializer: Mater
   def start(): Unit = {
     if (!configFile.exists()) Files.copy(getClass.getResourceAsStream("/config.yml"), configFile.toPath)
     val config = YamlConfiguration.loadConfiguration(configFile)
+    info("Building file analyzer...")
     dataChunkSize = config.getInt("file.chunk-size", 8192)
     val pattern = Pattern.compile(config.getString("file.exclude")).asPredicate()
     val exclude = pattern.test _
-    analyzer = new FileAnalyzer(Paths.get(System.getProperty("user.dir"), config.getString("file.directory")))(exclude = exclude, maxDepth = Option(config.getInt("file.max-depth")).filter(_ >= 0))
+    val defaultParallelism = Option(Runtime.getRuntime.availableProcessors())
+    analyzer = new FileAnalyzer(Paths.get(System.getProperty("user.dir"), config.getString("file.directory")))(
+      exclude = exclude,
+      maxDepth = Option(config.getInt("file.max-depth")).filter(_ > 0),
+      threadCount = Option(config.getInt("file.parallelism")).filter(_ > 0).orElse(defaultParallelism).getOrElse(1)
+    )
     system.whenTerminated.onComplete {
       case Failure(exception) => log(Level.WARNING, exception.getMessage, exception)
       case _ =>
     }
+    info("Opening network connexion...")
     http.bindAndHandleAsync(request => {
       request.entity.dataBytes
         .map(_.utf8String.parseJson.asJsObject)
@@ -54,8 +61,12 @@ class Server(configFile: File)(implicit system: ActorSystem, materializer: Mater
           e.printStackTrace(stacktracePrinter)
           HttpResponse(status = StatusCodes.InternalServerError, entity = HttpEntity(s"${e.getMessage}: $stacktraceWriter"))
         })
-    }, config.getString("network.ip"), config.getInt("network.port"))
-    info(s"Listening ${config.getString("network.ip")}:${config.getInt("network.port")}")
+    }, config.getString("network.ip"), config.getInt("network.port")).onComplete {
+
+      case Success(_) => info(s"Listening ${config.getString("network.ip")}:${config.getInt("network.port")}")
+
+      case Failure(exception) => log(Level.WARNING, exception.getMessage, exception)
+    }
   }
 
   def receiveUpdatePart(receivedChecksums: Vector[FileChecksum]): HttpResponse = {

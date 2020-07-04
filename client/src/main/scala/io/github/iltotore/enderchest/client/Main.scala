@@ -30,8 +30,9 @@ object Main {
     implicit val downloadLogger: FileDownloadAction = file => println(s"Downloading ${file.getName}...")
     implicit val deleteLogger: FileDeleteAction = file => println(s"Deleting ${file.getName}...")
 
-    val analyzer = new FileAnalyzer(path)(exclude = _ => true)
-    val client = new EnderClient("http://localhost:8080", analyzer)
+    val analyzer = new FileAnalyzer(path)()
+    //http://vps817144.ovh.net:808
+    val client = new EnderClient("http://vps817144.ovh.net:8082", analyzer)
     val time = System.currentTimeMillis()
     client.checkFiles
       .flatMap(_ => client.update)

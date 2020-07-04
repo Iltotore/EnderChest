@@ -30,6 +30,12 @@ shadowJar {
     configurations = [project.configurations.implementation]
     append 'reference.conf'
     archiveClassifier = 'withDependencies'
+    manifest {
+        attributes(
+                'Main-Class': 'io.github.iltotore.enderchest.server.Main',
+                'Class-Path': ''
+        )
+    }
 }
 
 

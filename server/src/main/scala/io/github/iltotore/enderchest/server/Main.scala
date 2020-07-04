@@ -8,6 +8,8 @@ import akka.stream.Materializer
 import io.github.iltotore.enderchest.EndLogger._
 
 import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration._
+import scala.io.StdIn
 import scala.util.{Failure, Success}
 
 object Main {
@@ -30,11 +32,13 @@ object Main {
       case Failure(exception) => log(Level.WARNING, "Unable to process files.", exception)
     }
 
+    info("Enabling CLI...")
+
     val cmdHandler = new CommandHandler
-    val cmdThread = new CommandThread(cmdHandler)
     cmdHandler.register("help", DefaultCommands.help)
-    cmdHandler.register("stop", DefaultCommands.stop(app, cmdThread))
+    cmdHandler.register("stop", DefaultCommands.stop(app))
     cmdHandler.register("top", DefaultCommands.top)
-    cmdThread.start()
+    system.scheduler.scheduleAtFixedRate(0.second, 0.1.second)(() =>
+      if (!cmdHandler.run(StdIn.readLine())) cmdHandler.run("help"))
   }
 }
