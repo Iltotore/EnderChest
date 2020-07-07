@@ -24,7 +24,7 @@ object Main {
     val app: Server = new Server(new File(directory, "config.yml"))
     info("Starting server...")
     app.start()
-    info("Indexing files...")
+    info(s"Indexing files in ${directory.toPath.relativize(app.analyzer.getDirectory)} using ${app.analyzer.getParallelismDegree} threads...")
     val time = System.currentTimeMillis()
     app.analyzer.check.onComplete {
       case Success(count) => fine(s"Successfully indexed $count files in ${System.currentTimeMillis() - time}ms")

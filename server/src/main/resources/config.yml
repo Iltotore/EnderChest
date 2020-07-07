@@ -6,3 +6,4 @@ file:
   exclude: "a^" # Ignore all files matched by this regex
   max-depth: 20 # The max depth for file indexing
   chunk-size: 8192 # The data chunk size in bytes. A bigger size will increase speed but it will also increase memory footprint.
+  paralellism: -1 # The number of threads used to process files. A non-positive value will tell the server to use all available cores.
