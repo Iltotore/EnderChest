@@ -36,6 +36,13 @@ class FileAnalyzer(directory: Path)(val exclude: String => Boolean = _ => false,
   def getDirectory: Path = directory
 
   /**
+   * Get the parallelism degree.
+   *
+   * @return the number of thread used to index files.
+   */
+  def getParallelismDegree: Int = threadCount
+
+  /**
    * Check files of the root directory.
    *
    * @param context the context used to generate the future (implicit).
