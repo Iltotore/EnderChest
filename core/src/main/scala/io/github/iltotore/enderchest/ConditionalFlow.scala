@@ -4,7 +4,17 @@ import akka.NotUsed
 import akka.stream.scaladsl.{Flow, GraphDSL, Merge, Partition}
 import akka.stream.{FlowShape, Graph}
 
+
 object ConditionalFlow {
+
+  /**
+   * Creates a new Flow ensuring the given condition.
+   *
+   * @param condition       the execution condition.
+   * @param conditionalFlow the flow ensuring the given condition.
+   * @tparam M the input type.
+   * @return a new Graph[FlowShape[M, M], NotUsed] ensuring the given condition.
+   */
   def apply[M](condition: M => Boolean,
                conditionalFlow: Flow[M, M, NotUsed]): Graph[FlowShape[M, M], NotUsed] = {
     Flow.fromGraph(GraphDSL.create() {
