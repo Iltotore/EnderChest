@@ -55,7 +55,7 @@ dependencies {
 <summary>Using SBT</summary>
 
 ```sbt
-libraryDependencies += "io.github.iltotore" %% "ec-client_2.13" % "version"
+libraryDependencies += "io.github.iltotore" %% "ec-client" % "version"
 ```
 </details>
 
